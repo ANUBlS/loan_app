@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../i18n/l10n.dart';
 import '../services/auth_service.dart';
 import '../theme.dart';
 import 'home_screen.dart';
@@ -37,7 +38,8 @@ class _LockScreenState extends State<LockScreen> {
       _error = null;
     });
 
-    final result = await _auth.authenticate('Unlock to see your loans');
+    final result =
+        await _auth.authenticate(L10n.instance.t('auth.reason_unlock'));
     if (!mounted) return;
 
     if (result.success) {
@@ -61,19 +63,16 @@ class _LockScreenState extends State<LockScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Register a new user?'),
-        content: const Text(
-          'This removes the current user from this device. '
-          'You will need to register and scan biometrics again.',
-        ),
+        title: Text(ctx.tr('lock.reset_title')),
+        content: Text(ctx.tr('lock.reset_body')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(ctx.tr('common.cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Remove user'),
+            child: Text(ctx.tr('lock.reset_confirm')),
           ),
         ],
       ),
@@ -91,8 +90,9 @@ class _LockScreenState extends State<LockScreen> {
   @override
   Widget build(BuildContext context) {
     final firstName = _name.trim().split(' ').first;
-    final greeting =
-        firstName.isEmpty ? 'Welcome back' : 'Welcome back, $firstName';
+    final greeting = firstName.isEmpty
+        ? context.tr('lock.greeting')
+        : context.tr('lock.greeting_name', {'name': firstName});
     final hasError = _error != null;
 
     return PopScope(
@@ -114,10 +114,10 @@ class _LockScreenState extends State<LockScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Touch the sensor or look at your phone to unlock.',
+                Text(
+                  context.tr('lock.hint'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: AppColors.muted),
+                  style: const TextStyle(fontSize: 15, color: AppColors.muted),
                 ),
                 const SizedBox(height: 48),
                 Material(
@@ -146,14 +146,15 @@ class _LockScreenState extends State<LockScreen> {
                   )
                 else
                   Text(
-                    _busy ? 'Checking…' : 'Tap the fingerprint to try again',
+                    context.tr(_busy ? 'lock.checking' : 'lock.retry'),
+                    textAlign: TextAlign.center,
                     style: const TextStyle(color: AppColors.muted),
                   ),
                 const Spacer(),
                 if (!widget.isRelock)
                   TextButton(
                     onPressed: _busy ? null : _resetAccount,
-                    child: const Text('Not you? Register a new user'),
+                    child: Text(context.tr('lock.not_you')),
                   ),
               ],
             ),

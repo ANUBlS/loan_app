@@ -76,18 +76,19 @@ class AppTheme {
 class StatusStyle {
   final Color color;
   final Color background;
+  /// Translation key.
   final String label;
 
   const StatusStyle(this.color, this.background, this.label);
 
   static StatusStyle of(InstallmentStatus s) => switch (s) {
         InstallmentStatus.paid =>
-          const StatusStyle(AppColors.paid, AppColors.paidBg, 'Paid'),
+          const StatusStyle(AppColors.paid, AppColors.paidBg, 'status.paid'),
         InstallmentStatus.overdue =>
-          const StatusStyle(AppColors.overdue, AppColors.overdueBg, 'Overdue'),
+          const StatusStyle(AppColors.overdue, AppColors.overdueBg, 'status.overdue'),
         InstallmentStatus.next =>
-          const StatusStyle(AppColors.next, AppColors.nextBg, 'Next'),
+          const StatusStyle(AppColors.next, AppColors.nextBg, 'status.next'),
         InstallmentStatus.upcoming =>
-          const StatusStyle(AppColors.upcoming, Colors.white, 'Upcoming'),
+          const StatusStyle(AppColors.upcoming, Colors.white, 'status.upcoming'),
       };
 }

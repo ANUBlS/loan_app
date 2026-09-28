@@ -37,6 +37,7 @@ class Installment {
 class Loan {
   final String id;
   final LoanType type;
+  /// Translation key, e.g. product.car_loan
   final String productName;
   final String contractNo;
   final String currency;

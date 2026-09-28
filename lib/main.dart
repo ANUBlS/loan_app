@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'i18n/l10n.dart';
 import 'screens/lock_screen.dart';
 import 'screens/register_screen.dart';
 import 'services/auth_service.dart';
 import 'theme.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await L10n.instance.load();
   runApp(const LoanApp());
 }
 
@@ -17,11 +20,29 @@ class LoanApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Loan App',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: const StartupGate(),
+    final l10n = L10n.instance;
+    return ListenableBuilder(
+      listenable: l10n,
+      builder: (context, _) {
+        // Material widgets (dialogs, tooltips) follow the app language
+        // when Flutter supports it, otherwise English.
+        final materialLocale =
+            GlobalMaterialLocalizations.delegate.isSupported(l10n.locale)
+                ? l10n.locale
+                : const Locale('en');
+
+        return MaterialApp(
+          onGenerateTitle: (_) => l10n.t('app.title'),
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          locale: materialLocale,
+          supportedLocales: {materialLocale, const Locale('en')}.toList(),
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          builder: (context, child) =>
+              L10nScope(child: child ?? const SizedBox.shrink()),
+          home: const StartupGate(),
+        );
+      },
     );
   }
 }

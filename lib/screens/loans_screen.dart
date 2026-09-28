@@ -1,47 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../data/loan_repository.dart';
+import '../i18n/l10n.dart';
 import '../models/loan.dart';
-import '../services/auth_service.dart';
 import '../theme.dart';
 import '../utils/format.dart';
 import '../widgets/loan_widgets.dart';
-import 'register_screen.dart';
+import '../widgets/profile_menu.dart';
 import 'schedule_screen.dart';
 
 class LoansScreen extends StatelessWidget {
   final VoidCallback onOrderLoan;
   const LoansScreen({super.key, required this.onOrderLoan});
-
-  Future<void> _confirmReset(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Sign out and reset?'),
-        content: const Text(
-          'The user is removed from this device. '
-          'You will register and scan biometrics again.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sign out'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    await AuthService().reset();
-    if (!context.mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const RegisterScreen()),
-      (_) => false,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,17 +19,8 @@ class LoansScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My loans'),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (v) {
-              if (v == 'reset') _confirmReset(context);
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'reset', child: Text('Sign out and reset')),
-            ],
-          ),
-        ],
+        leading: const ProfileAvatarButton(),
+        title: Text(context.tr('loans.title')),
       ),
       body: ListenableBuilder(
         listenable: repo,
@@ -80,14 +41,14 @@ class LoansScreen extends StatelessWidget {
                 openCount: open.length,
               ),
               if (applications.isNotEmpty) ...[
-                const SectionTitle('Applications'),
+                SectionTitle(context.tr('loans.applications')),
                 for (final a in applications)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: _ApplicationTile(application: a),
                   ),
               ],
-              SectionTitle('Loans (${loans.length})'),
+              SectionTitle(context.tr('loans.section', {'n': loans.length})),
               if (loans.isEmpty)
                 _EmptyState(onOrderLoan: onOrderLoan)
               else
@@ -133,9 +94,9 @@ class _SummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Total outstanding',
-            style: TextStyle(color: Colors.white70, fontSize: 14),
+          Text(
+            context.tr('loans.total_outstanding'),
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
           ),
           const SizedBox(height: 6),
           Text(
@@ -149,10 +110,16 @@ class _SummaryCard extends StatelessWidget {
           const SizedBox(height: 18),
           Row(
             children: [
-              Expanded(child: _stat('Open loans', '$openCount', Colors.white)),
               Expanded(
                 child: _stat(
-                  'Overdue',
+                  context.tr('loans.open_loans'),
+                  '$openCount',
+                  Colors.white,
+                ),
+              ),
+              Expanded(
+                child: _stat(
+                  context.tr('loans.overdue'),
                   formatMoney(overdue),
                   overdue > 0 ? const Color(0xFFFF8A80) : Colors.white,
                 ),
@@ -205,7 +172,7 @@ class _ApplicationTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  application.productName,
+                  context.tr(application.productName),
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     color: AppColors.ink,
@@ -213,15 +180,18 @@ class _ApplicationTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${formatMoney(application.amount, application.currency)}, '
-                  '${application.termMonths} months',
+                  context.tr('loans.app_line', {
+                    'amount':
+                        formatMoney(application.amount, application.currency),
+                    'term': formatTerm(application.termMonths),
+                  }),
                   style: const TextStyle(fontSize: 13, color: AppColors.muted),
                 ),
               ],
             ),
           ),
-          const Pill(
-            text: 'Under review',
+          Pill(
+            text: context.tr('loans.under_review'),
             color: AppColors.next,
             background: AppColors.nextBg,
           ),
@@ -247,15 +217,15 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'You have no loans yet.',
+          Text(
+            context.tr('loans.empty'),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: AppColors.ink),
+            style: const TextStyle(fontSize: 16, color: AppColors.ink),
           ),
           const SizedBox(height: 16),
           FilledButton(
             onPressed: onOrderLoan,
-            child: const Text('Order a loan'),
+            child: Text(context.tr('loans.order_button')),
           ),
         ],
       ),

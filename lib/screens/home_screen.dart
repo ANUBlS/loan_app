@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../i18n/l10n.dart';
 import 'loans_screen.dart';
 import 'lock_screen.dart';
 import 'order_loan_screen.dart';
@@ -70,16 +71,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            selectedIcon: Icon(Icons.account_balance_wallet),
-            label: 'My loans',
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: const Icon(Icons.account_balance_wallet),
+            label: context.tr('nav.loans'),
           ),
           NavigationDestination(
-            icon: Icon(Icons.add_card_outlined),
-            selectedIcon: Icon(Icons.add_card),
-            label: 'Order a loan',
+            icon: const Icon(Icons.add_card_outlined),
+            selectedIcon: const Icon(Icons.add_card),
+            label: context.tr('nav.order'),
           ),
         ],
       ),

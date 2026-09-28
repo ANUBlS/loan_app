@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../data/loan_repository.dart';
 import '../data/mock_data.dart';
+import '../i18n/l10n.dart';
 import '../services/auth_service.dart';
 import '../theme.dart';
 import '../utils/format.dart';
 import '../utils/loan_math.dart';
 import '../widgets/loan_widgets.dart';
+import '../widgets/profile_menu.dart';
 
 class OrderLoanScreen extends StatefulWidget {
   final VoidCallback? onSubmitted;
@@ -26,6 +28,8 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
   String _purpose = MockData.purposes.first;
   bool _agreed = false;
   bool _busy = false;
+
+  L10n get _l => L10n.instance;
 
   @override
   void initState() {
@@ -60,22 +64,21 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
     final monthly = annuityPayment(_amount, _product.annualRate, _term);
 
     if (income == null || income <= 0) {
-      _snack('Enter your monthly net income.');
+      _snack(_l.t('order.err_income'));
       return;
     }
     if (monthly > income * 0.5) {
-      _snack('The monthly payment is more than half of your income. '
-          'Lower the amount or choose a longer term.');
+      _snack(_l.t('order.err_ratio'));
       return;
     }
 
     setState(() => _busy = true);
-    final result = await _auth.authenticate('Confirm your loan application');
+    final result = await _auth.authenticate(_l.t('auth.reason_apply'));
     if (!mounted) return;
     setState(() => _busy = false);
 
     if (!result.success) {
-      _snack(result.message ?? 'Confirmation failed.');
+      _snack(result.message ?? _l.t('order.err_confirm'));
       return;
     }
 
@@ -90,18 +93,20 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         icon: const Icon(Icons.check_circle, color: AppColors.paid, size: 48),
-        title: const Text('Application sent'),
+        title: Text(ctx.tr('order.sent_title')),
         content: Text(
-          '${app.productName}: ${formatMoney(app.amount, app.currency)} '
-          'for ${app.termMonths} months.\n'
-          'Monthly payment: ${formatMoney(app.monthlyPayment, app.currency)}\n\n'
-          'Application number: ${app.id}\n'
-          'We will review it and notify you.',
+          ctx.tr('order.sent_body', {
+            'product': ctx.tr(app.productName),
+            'amount': formatMoney(app.amount, app.currency),
+            'term': formatTerm(app.termMonths),
+            'monthly': formatMoney(app.monthlyPayment, app.currency),
+            'id': app.id,
+          }),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Done'),
+            child: Text(ctx.tr('common.done')),
           ),
         ],
       ),
@@ -123,11 +128,14 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
     final total = monthly * _term;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Order a loan')),
+      appBar: AppBar(
+        leading: const ProfileAvatarButton(),
+        title: Text(context.tr('order.title')),
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
         children: [
-          const _Label('Loan type'),
+          _Label(context.tr('order.type')),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -136,7 +144,7 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
                 ChoiceChip(
                   showCheckmark: false,
                   avatar: Icon(loanTypeIcon(product.type), size: 18),
-                  label: Text(product.name),
+                  label: Text(context.tr(product.name)),
                   selected: product == p,
                   onSelected: (_) => setState(() => _applyProduct(product)),
                 ),
@@ -144,7 +152,7 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
           ),
           const SizedBox(height: 20),
           _SliderField(
-            label: 'Amount',
+            label: context.tr('order.amount'),
             valueText: formatMoney(_amount),
             minText: formatMoney(p.minAmount),
             maxText: formatMoney(p.maxAmount),
@@ -160,10 +168,10 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
           ),
           const SizedBox(height: 12),
           _SliderField(
-            label: 'Term',
+            label: context.tr('order.term'),
             valueText: formatTerm(_term),
-            minText: '${p.minTerm} mo',
-            maxText: '${p.maxTerm} mo',
+            minText: context.tr('term.short', {'n': p.minTerm}),
+            maxText: context.tr('term.short', {'n': p.maxTerm}),
             slider: Slider(
               value: _term.toDouble(),
               min: p.minTerm.toDouble(),
@@ -173,7 +181,7 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          const _Label('Purpose'),
+          _Label(context.tr('order.purpose')),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -181,7 +189,7 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
               for (final purpose in MockData.purposes)
                 ChoiceChip(
                   showCheckmark: false,
-                  label: Text(purpose),
+                  label: Text(context.tr(purpose)),
                   selected: purpose == _purpose,
                   onSelected: (_) => setState(() => _purpose = purpose),
                 ),
@@ -191,10 +199,10 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
           TextField(
             controller: _incomeCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Monthly net income',
-              suffixText: 'AZN',
-              prefixIcon: Icon(Icons.payments_outlined),
+            decoration: InputDecoration(
+              labelText: context.tr('order.income'),
+              suffixText: MockData.currency,
+              prefixIcon: const Icon(Icons.payments_outlined),
             ),
           ),
           const SizedBox(height: 20),
@@ -207,9 +215,9 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Monthly payment',
-                  style: TextStyle(color: AppColors.primary),
+                Text(
+                  context.tr('order.monthly'),
+                  style: const TextStyle(color: AppColors.primary),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -221,10 +229,16 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                _calcRow('Interest rate',
-                    '${p.annualRate.toStringAsFixed(1)}% per year'),
-                _calcRow('Total repayment', formatMoney(total)),
-                _calcRow('Total interest', formatMoney(total - _amount)),
+                _calcRow(
+                  context.tr('order.rate'),
+                  context.tr('schedule.rate_value',
+                      {'rate': p.annualRate.toStringAsFixed(1)}),
+                ),
+                _calcRow(context.tr('order.total'), formatMoney(total)),
+                _calcRow(
+                  context.tr('order.total_interest'),
+                  formatMoney(total - _amount),
+                ),
               ],
             ),
           ),
@@ -234,22 +248,22 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
             onChanged: (v) => setState(() => _agreed = v ?? false),
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
-            title: const Text(
-              'I agree to a credit bureau check and to the loan terms.',
-              style: TextStyle(fontSize: 14),
+            title: Text(
+              context.tr('order.agree'),
+              style: const TextStyle(fontSize: 14),
             ),
           ),
           const SizedBox(height: 8),
           FilledButton.icon(
             onPressed: _agreed && !_busy ? _submit : null,
             icon: const Icon(Icons.fingerprint),
-            label: Text(_busy ? 'Waiting for biometrics…' : 'Send application'),
+            label: Text(context.tr(_busy ? 'order.waiting' : 'order.submit')),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'You confirm the application with your fingerprint or face.',
+          Text(
+            context.tr('order.biometric_note'),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: AppColors.muted),
+            style: const TextStyle(fontSize: 13, color: AppColors.muted),
           ),
         ],
       ),
@@ -261,8 +275,10 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
-          Text(label, style: const TextStyle(color: AppColors.ink)),
-          const Spacer(),
+          Expanded(
+            child: Text(label, style: const TextStyle(color: AppColors.ink)),
+          ),
+          const SizedBox(width: 8),
           Text(
             value,
             style: const TextStyle(
@@ -326,13 +342,16 @@ class _SliderField extends StatelessWidget {
           Row(
             children: [
               Text(label, style: const TextStyle(color: AppColors.muted)),
-              const Spacer(),
-              Text(
-                valueText,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.ink,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  valueText,
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink,
+                  ),
                 ),
               ),
             ],

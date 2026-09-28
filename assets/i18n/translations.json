@@ -1,0 +1,657 @@
+{
+  "_how_to_edit": [
+    "Edit the texts below; keep the keys (left side) unchanged.",
+    "Keep placeholders like {name}, {amount}, {n} exactly as they are.",
+    "Count texts can be one string, or an object with one/few/many/other forms (Russian uses one, few, many).",
+    "Empty or missing text falls back to the 'default' language.",
+    "To add a language: add its code to 'languages' (e.g. \"tr\": \"Türkçe\") and a \"tr\" text to each key."
+  ],
+  "default": "en",
+  "languages": {
+    "en": "English",
+    "az": "Azərbaycanca",
+    "ru": "Русский"
+  },
+  "strings": {
+    "app.title": {
+      "en": "Loan App",
+      "az": "Kredit Tətbiqi",
+      "ru": "Кредиты"
+    },
+    "common.cancel": {
+      "en": "Cancel",
+      "az": "Ləğv et",
+      "ru": "Отмена"
+    },
+    "common.done": {
+      "en": "Done",
+      "az": "Hazır",
+      "ru": "Готово"
+    },
+    "common.error_generic": {
+      "en": "Something went wrong. Try again.",
+      "az": "Xəta baş verdi. Yenidən cəhd edin.",
+      "ru": "Что-то пошло не так. Попробуйте ещё раз."
+    },
+    "auth.reason_register": {
+      "en": "Scan your fingerprint or face to turn on biometric login",
+      "az": "Biometrik girişi aktivləşdirmək üçün barmaq izinizi və ya üzünüzü skan edin",
+      "ru": "Отсканируйте отпечаток пальца или лицо, чтобы включить биометрический вход"
+    },
+    "auth.reason_unlock": {
+      "en": "Unlock to see your loans",
+      "az": "Kreditlərinizi görmək üçün kilidi açın",
+      "ru": "Разблокируйте, чтобы увидеть свои кредиты"
+    },
+    "auth.reason_apply": {
+      "en": "Confirm your loan application",
+      "az": "Kredit müraciətinizi təsdiqləyin",
+      "ru": "Подтвердите заявку на кредит"
+    },
+    "auth.err_unsupported": {
+      "en": "This device does not support biometric login.",
+      "az": "Bu cihaz biometrik girişi dəstəkləmir.",
+      "ru": "Это устройство не поддерживает биометрический вход."
+    },
+    "auth.err_not_enrolled": {
+      "en": "No fingerprint or face is enrolled. Add one in your device settings, then try again.",
+      "az": "Cihazda barmaq izi və ya üz qeydə alınmayıb. Cihaz ayarlarından əlavə edib yenidən cəhd edin.",
+      "ru": "На устройстве не добавлены отпечаток пальца или лицо. Добавьте их в настройках устройства и повторите попытку."
+    },
+    "auth.err_not_available": {
+      "en": "Biometric login is not available on this device.",
+      "az": "Bu cihazda biometrik giriş mövcud deyil.",
+      "ru": "Биометрический вход недоступен на этом устройстве."
+    },
+    "auth.err_passcode": {
+      "en": "Set a screen lock (PIN, pattern or password) on this device first.",
+      "az": "Əvvəlcə cihazda ekran kilidi (PIN, qrafik açar və ya şifrə) təyin edin.",
+      "ru": "Сначала установите блокировку экрана (PIN-код, графический ключ или пароль)."
+    },
+    "auth.err_locked": {
+      "en": "Too many attempts. Wait 30 seconds and try again.",
+      "az": "Çox sayda cəhd edildi. 30 saniyə gözləyib yenidən cəhd edin.",
+      "ru": "Слишком много попыток. Подождите 30 секунд и повторите попытку."
+    },
+    "auth.err_perm_locked": {
+      "en": "Biometrics are locked. Unlock your device with its PIN, then try again.",
+      "az": "Biometrik giriş bloklanıb. Cihazın kilidini PIN ilə açıb yenidən cəhd edin.",
+      "ru": "Биометрия заблокирована. Разблокируйте устройство PIN-кодом и повторите попытку."
+    },
+    "auth.err_cancelled": {
+      "en": "Biometric check was cancelled.",
+      "az": "Biometrik yoxlama ləğv edildi.",
+      "ru": "Биометрическая проверка отменена."
+    },
+    "auth.err_generic": {
+      "en": "Biometric check failed ({code}).",
+      "az": "Biometrik yoxlama alınmadı ({code}).",
+      "ru": "Биометрическая проверка не удалась ({code})."
+    },
+    "register.title": {
+      "en": "Create your account",
+      "az": "Hesab yaradın",
+      "ru": "Создайте аккаунт"
+    },
+    "register.subtitle": {
+      "en": "Your loans are protected by your fingerprint or face. You confirm it once now and every time you open the app.",
+      "az": "Kreditləriniz barmaq iziniz və ya üzünüzlə qorunur. Bunu indi bir dəfə və tətbiqi hər açanda təsdiqləyəcəksiniz.",
+      "ru": "Ваши кредиты защищены отпечатком пальца или лицом. Подтвердите биометрию сейчас и при каждом открытии приложения."
+    },
+    "register.name": {
+      "en": "Full name",
+      "az": "Ad və soyad",
+      "ru": "Имя и фамилия"
+    },
+    "register.name_error": {
+      "en": "Enter your full name",
+      "az": "Ad və soyadınızı daxil edin",
+      "ru": "Введите имя и фамилию"
+    },
+    "register.phone": {
+      "en": "Mobile number",
+      "az": "Mobil nömrə",
+      "ru": "Номер телефона"
+    },
+    "register.phone_error": {
+      "en": "Enter a number like +994 50 123 45 67",
+      "az": "Nömrəni +994 50 123 45 67 formatında daxil edin",
+      "ru": "Введите номер в формате +994 50 123 45 67"
+    },
+    "register.button": {
+      "en": "Register with biometrics",
+      "az": "Biometrika ilə qeydiyyatdan keçin",
+      "ru": "Зарегистрироваться с биометрией"
+    },
+    "register.waiting": {
+      "en": "Waiting for biometrics…",
+      "az": "Biometrik yoxlama gözlənilir…",
+      "ru": "Ожидание биометрии…"
+    },
+    "register.privacy": {
+      "en": "Biometric data never leaves your device.",
+      "az": "Biometrik məlumatlar cihazınızdan kənara çıxmır.",
+      "ru": "Биометрические данные не покидают ваше устройство."
+    },
+    "lock.greeting": {
+      "en": "Welcome back",
+      "az": "Xoş gəlmisiniz",
+      "ru": "С возвращением"
+    },
+    "lock.greeting_name": {
+      "en": "Welcome back, {name}",
+      "az": "Xoş gəlmisiniz, {name}",
+      "ru": "С возвращением, {name}"
+    },
+    "lock.hint": {
+      "en": "Touch the sensor or look at your phone to unlock.",
+      "az": "Kilidi açmaq üçün sensora toxunun və ya telefona baxın.",
+      "ru": "Коснитесь сканера или посмотрите на телефон, чтобы разблокировать."
+    },
+    "lock.checking": {
+      "en": "Checking…",
+      "az": "Yoxlanılır…",
+      "ru": "Проверка…"
+    },
+    "lock.retry": {
+      "en": "Tap the fingerprint to try again",
+      "az": "Yenidən cəhd etmək üçün barmaq izi işarəsinə toxunun",
+      "ru": "Нажмите на отпечаток, чтобы повторить"
+    },
+    "lock.not_you": {
+      "en": "Not you? Register a new user",
+      "az": "Siz deyilsiniz? Yeni istifadəçi qeydiyyatı",
+      "ru": "Это не вы? Зарегистрировать нового пользователя"
+    },
+    "lock.reset_title": {
+      "en": "Register a new user?",
+      "az": "Yeni istifadəçi qeydiyyatdan keçirilsin?",
+      "ru": "Зарегистрировать нового пользователя?"
+    },
+    "lock.reset_body": {
+      "en": "This removes the current user from this device. You will need to register and scan biometrics again.",
+      "az": "Cari istifadəçi bu cihazdan silinəcək. Yenidən qeydiyyatdan keçib biometrik yoxlamadan keçməli olacaqsınız.",
+      "ru": "Текущий пользователь будет удалён с этого устройства. Потребуется снова зарегистрироваться и пройти биометрию."
+    },
+    "lock.reset_confirm": {
+      "en": "Remove user",
+      "az": "İstifadəçini sil",
+      "ru": "Удалить пользователя"
+    },
+    "nav.loans": {
+      "en": "My loans",
+      "az": "Kreditlərim",
+      "ru": "Мои кредиты"
+    },
+    "nav.order": {
+      "en": "Order a loan",
+      "az": "Kredit sifarişi",
+      "ru": "Заказать кредит"
+    },
+    "profile.language": {
+      "en": "Language",
+      "az": "Dil",
+      "ru": "Язык"
+    },
+    "profile.choose_language": {
+      "en": "Choose language",
+      "az": "Dili seçin",
+      "ru": "Выберите язык"
+    },
+    "profile.sign_out": {
+      "en": "Sign out",
+      "az": "Çıxış",
+      "ru": "Выйти"
+    },
+    "profile.sign_out_title": {
+      "en": "Sign out?",
+      "az": "Çıxış edilsin?",
+      "ru": "Выйти?"
+    },
+    "profile.sign_out_body": {
+      "en": "The user is removed from this device. You will register and scan biometrics again. Your language choice is kept.",
+      "az": "İstifadəçi bu cihazdan silinəcək. Yenidən qeydiyyatdan keçib biometrik yoxlamadan keçəcəksiniz. Seçdiyiniz dil saxlanılır.",
+      "ru": "Пользователь будет удалён с этого устройства. Нужно будет снова зарегистрироваться и пройти биометрию. Выбранный язык сохранится."
+    },
+    "loans.title": {
+      "en": "My loans",
+      "az": "Kreditlərim",
+      "ru": "Мои кредиты"
+    },
+    "loans.total_outstanding": {
+      "en": "Total outstanding",
+      "az": "Ümumi qalıq borc",
+      "ru": "Общий остаток долга"
+    },
+    "loans.open_loans": {
+      "en": "Open loans",
+      "az": "Aktiv kreditlər",
+      "ru": "Открытые кредиты"
+    },
+    "loans.overdue": {
+      "en": "Overdue",
+      "az": "Gecikmiş",
+      "ru": "Просрочено"
+    },
+    "loans.applications": {
+      "en": "Applications",
+      "az": "Müraciətlər",
+      "ru": "Заявки"
+    },
+    "loans.section": {
+      "en": "Loans ({n})",
+      "az": "Kreditlər ({n})",
+      "ru": "Кредиты ({n})"
+    },
+    "loans.empty": {
+      "en": "You have no loans yet.",
+      "az": "Hələ kreditiniz yoxdur.",
+      "ru": "У вас пока нет кредитов."
+    },
+    "loans.order_button": {
+      "en": "Order a loan",
+      "az": "Kredit sifariş edin",
+      "ru": "Заказать кредит"
+    },
+    "loans.under_review": {
+      "en": "Under review",
+      "az": "Baxılır",
+      "ru": "На рассмотрении"
+    },
+    "loans.app_line": {
+      "en": "{amount}, {term}",
+      "az": "{amount}, {term}",
+      "ru": "{amount}, {term}"
+    },
+    "card.outstanding": {
+      "en": "Outstanding",
+      "az": "Qalıq borc",
+      "ru": "Остаток долга"
+    },
+    "card.loan_amount": {
+      "en": "Loan amount",
+      "az": "Kredit məbləği",
+      "ru": "Сумма кредита"
+    },
+    "card.payments_made": {
+      "en": "{paid} of {total} payments made",
+      "az": "Ödənilib: {paid}/{total}",
+      "ru": "Выполнено платежей: {paid} из {total}"
+    },
+    "card.fully_repaid": {
+      "en": "Fully repaid",
+      "az": "Tam ödənilib",
+      "ru": "Полностью погашен"
+    },
+    "card.overdue_amount": {
+      "en": "Overdue {amount}",
+      "az": "Gecikmə: {amount}",
+      "ru": "Просрочено: {amount}"
+    },
+    "card.next_payment": {
+      "en": "Next payment {date}",
+      "az": "Növbəti ödəniş: {date}",
+      "ru": "Следующий платёж: {date}"
+    },
+    "state.active": {
+      "en": "Active",
+      "az": "Aktiv",
+      "ru": "Активен"
+    },
+    "state.overdue": {
+      "en": "Overdue",
+      "az": "Gecikmədə",
+      "ru": "Просрочен"
+    },
+    "state.closed": {
+      "en": "Closed",
+      "az": "Bağlanıb",
+      "ru": "Закрыт"
+    },
+    "schedule.title": {
+      "en": "Payment schedule",
+      "az": "Ödəniş qrafiki",
+      "ru": "График платежей"
+    },
+    "schedule.contract": {
+      "en": "Contract",
+      "az": "Müqavilə",
+      "ru": "Договор"
+    },
+    "schedule.loan_amount": {
+      "en": "Loan amount",
+      "az": "Kredit məbləği",
+      "ru": "Сумма кредита"
+    },
+    "schedule.rate": {
+      "en": "Interest rate",
+      "az": "Faiz dərəcəsi",
+      "ru": "Процентная ставка"
+    },
+    "schedule.rate_value": {
+      "en": "{rate}% per year",
+      "az": "İllik {rate}%",
+      "ru": "{rate}% годовых"
+    },
+    "schedule.term": {
+      "en": "Term",
+      "az": "Müddət",
+      "ru": "Срок"
+    },
+    "schedule.monthly": {
+      "en": "Monthly payment",
+      "az": "Aylıq ödəniş",
+      "ru": "Ежемесячный платёж"
+    },
+    "schedule.paid_so_far": {
+      "en": "Paid so far",
+      "az": "İndiyədək ödənilib",
+      "ru": "Уже выплачено"
+    },
+    "schedule.outstanding": {
+      "en": "Outstanding principal",
+      "az": "Qalıq əsas borc",
+      "ru": "Остаток основного долга"
+    },
+    "schedule.opened": {
+      "en": "Opened",
+      "az": "Açılış tarixi",
+      "ru": "Дата открытия"
+    },
+    "schedule.final_payment": {
+      "en": "Final payment",
+      "az": "Son ödəniş",
+      "ru": "Последний платёж"
+    },
+    "schedule.paid_count": {
+      "en": "{paid}/{total} paid",
+      "az": "{paid}/{total} ödənilib",
+      "ru": "Оплачено {paid}/{total}"
+    },
+    "schedule.overdue_banner": {
+      "en": {
+        "one": "{n} overdue payment: {amount}. Pay now to avoid penalties.",
+        "other": "{n} overdue payments: {amount}. Pay now to avoid penalties."
+      },
+      "az": "{n} gecikmiş ödəniş: {amount}. Cərimələrdən qaçmaq üçün indi ödəyin.",
+      "ru": {
+        "one": "{n} просроченный платёж: {amount}. Оплатите сейчас, чтобы избежать штрафов.",
+        "few": "{n} просроченных платежа: {amount}. Оплатите сейчас, чтобы избежать штрафов.",
+        "many": "{n} просроченных платежей: {amount}. Оплатите сейчас, чтобы избежать штрафов.",
+        "other": "{n} просроченных платежа: {amount}. Оплатите сейчас, чтобы избежать штрафов."
+      }
+    },
+    "status.paid": {
+      "en": "Paid",
+      "az": "Ödənilib",
+      "ru": "Оплачен"
+    },
+    "status.overdue": {
+      "en": "Overdue",
+      "az": "Gecikmiş",
+      "ru": "Просрочен"
+    },
+    "status.next": {
+      "en": "Next",
+      "az": "Növbəti",
+      "ru": "Следующий"
+    },
+    "status.upcoming": {
+      "en": "Upcoming",
+      "az": "Gələcək",
+      "ru": "Предстоящий"
+    },
+    "inst.paid_on": {
+      "en": "Paid on {date}",
+      "az": "{date} tarixində ödənilib",
+      "ru": "Оплачен {date}"
+    },
+    "inst.overdue_by": {
+      "en": {
+        "one": "Overdue by {n} day",
+        "other": "Overdue by {n} days"
+      },
+      "az": "{n} gün gecikib",
+      "ru": {
+        "one": "Просрочен на {n} день",
+        "few": "Просрочен на {n} дня",
+        "many": "Просрочен на {n} дней",
+        "other": "Просрочен на {n} дня"
+      }
+    },
+    "inst.due_today": {
+      "en": "Due today",
+      "az": "Bu gün ödənilməlidir",
+      "ru": "Оплатить сегодня"
+    },
+    "inst.due_in": {
+      "en": {
+        "one": "Next payment, in {n} day",
+        "other": "Next payment, in {n} days"
+      },
+      "az": "Növbəti ödəniş, {n} gün sonra",
+      "ru": {
+        "one": "Следующий платёж через {n} день",
+        "few": "Следующий платёж через {n} дня",
+        "many": "Следующий платёж через {n} дней",
+        "other": "Следующий платёж через {n} дня"
+      }
+    },
+    "inst.scheduled": {
+      "en": "Scheduled",
+      "az": "Planlaşdırılıb",
+      "ru": "Запланирован"
+    },
+    "inst.principal": {
+      "en": "Principal {v}",
+      "az": "Əsas borc {v}",
+      "ru": "Осн. долг {v}"
+    },
+    "inst.interest": {
+      "en": "Interest {v}",
+      "az": "Faiz {v}",
+      "ru": "Проценты {v}"
+    },
+    "term.months": {
+      "en": {
+        "one": "{n} month",
+        "other": "{n} months"
+      },
+      "az": "{n} ay",
+      "ru": {
+        "one": "{n} месяц",
+        "few": "{n} месяца",
+        "many": "{n} месяцев",
+        "other": "{n} месяца"
+      }
+    },
+    "term.years": {
+      "en": {
+        "one": "{n} year",
+        "other": "{n} years"
+      },
+      "az": "{n} il",
+      "ru": {
+        "one": "{n} год",
+        "few": "{n} года",
+        "many": "{n} лет",
+        "other": "{n} года"
+      }
+    },
+    "term.short": {
+      "en": "{n} mo",
+      "az": "{n} ay",
+      "ru": "{n} мес."
+    },
+    "order.title": {
+      "en": "Order a loan",
+      "az": "Kredit sifarişi",
+      "ru": "Заказать кредит"
+    },
+    "order.type": {
+      "en": "Loan type",
+      "az": "Kredit növü",
+      "ru": "Вид кредита"
+    },
+    "order.amount": {
+      "en": "Amount",
+      "az": "Məbləğ",
+      "ru": "Сумма"
+    },
+    "order.term": {
+      "en": "Term",
+      "az": "Müddət",
+      "ru": "Срок"
+    },
+    "order.purpose": {
+      "en": "Purpose",
+      "az": "Məqsəd",
+      "ru": "Цель"
+    },
+    "order.income": {
+      "en": "Monthly net income",
+      "az": "Aylıq xalis gəlir",
+      "ru": "Ежемесячный чистый доход"
+    },
+    "order.monthly": {
+      "en": "Monthly payment",
+      "az": "Aylıq ödəniş",
+      "ru": "Ежемесячный платёж"
+    },
+    "order.rate": {
+      "en": "Interest rate",
+      "az": "Faiz dərəcəsi",
+      "ru": "Процентная ставка"
+    },
+    "order.total": {
+      "en": "Total repayment",
+      "az": "Ümumi ödəniş",
+      "ru": "Общая сумма выплат"
+    },
+    "order.total_interest": {
+      "en": "Total interest",
+      "az": "Ümumi faiz",
+      "ru": "Всего процентов"
+    },
+    "order.agree": {
+      "en": "I agree to a credit bureau check and to the loan terms.",
+      "az": "Kredit bürosu yoxlamasına və kredit şərtlərinə razıyam.",
+      "ru": "Я согласен на проверку в кредитном бюро и с условиями кредита."
+    },
+    "order.submit": {
+      "en": "Send application",
+      "az": "Müraciət göndər",
+      "ru": "Отправить заявку"
+    },
+    "order.waiting": {
+      "en": "Waiting for biometrics…",
+      "az": "Biometrik yoxlama gözlənilir…",
+      "ru": "Ожидание биометрии…"
+    },
+    "order.biometric_note": {
+      "en": "You confirm the application with your fingerprint or face.",
+      "az": "Müraciəti barmaq iziniz və ya üzünüzlə təsdiqləyirsiniz.",
+      "ru": "Заявка подтверждается отпечатком пальца или лицом."
+    },
+    "order.err_income": {
+      "en": "Enter your monthly net income.",
+      "az": "Aylıq xalis gəlirinizi daxil edin.",
+      "ru": "Введите ежемесячный чистый доход."
+    },
+    "order.err_ratio": {
+      "en": "The monthly payment is more than half of your income. Lower the amount or choose a longer term.",
+      "az": "Aylıq ödəniş gəlirinizin yarısından çoxdur. Məbləği azaldın və ya daha uzun müddət seçin.",
+      "ru": "Ежемесячный платёж превышает половину вашего дохода. Уменьшите сумму или выберите более длительный срок."
+    },
+    "order.err_confirm": {
+      "en": "Confirmation failed.",
+      "az": "Təsdiq alınmadı.",
+      "ru": "Подтверждение не удалось."
+    },
+    "order.sent_title": {
+      "en": "Application sent",
+      "az": "Müraciət göndərildi",
+      "ru": "Заявка отправлена"
+    },
+    "order.sent_body": {
+      "en": "{product}: {amount} for {term}.\nMonthly payment: {monthly}\n\nApplication number: {id}\nWe will review it and notify you.",
+      "az": "{product}: {amount}, müddət: {term}.\nAylıq ödəniş: {monthly}\n\nMüraciət nömrəsi: {id}\nMüraciətinizə baxıb sizə məlumat verəcəyik.",
+      "ru": "{product}: {amount} на {term}.\nЕжемесячный платёж: {monthly}\n\nНомер заявки: {id}\nМы рассмотрим её и сообщим вам."
+    },
+    "product.consumer": {
+      "en": "Consumer",
+      "az": "İstehlak",
+      "ru": "Потребительский"
+    },
+    "product.car": {
+      "en": "Car",
+      "az": "Avtomobil",
+      "ru": "Автокредит"
+    },
+    "product.mortgage": {
+      "en": "Mortgage",
+      "az": "İpoteka",
+      "ru": "Ипотека"
+    },
+    "product.business": {
+      "en": "Business",
+      "az": "Biznes",
+      "ru": "Бизнес"
+    },
+    "product.consumer_loan": {
+      "en": "Consumer Loan",
+      "az": "İstehlak krediti",
+      "ru": "Потребительский кредит"
+    },
+    "product.car_loan": {
+      "en": "Car Loan",
+      "az": "Avtomobil krediti",
+      "ru": "Автокредит"
+    },
+    "product.mortgage_loan": {
+      "en": "Mortgage",
+      "az": "İpoteka krediti",
+      "ru": "Ипотечный кредит"
+    },
+    "product.business_loan": {
+      "en": "Business Loan",
+      "az": "Biznes krediti",
+      "ru": "Бизнес-кредит"
+    },
+    "product.express_loan": {
+      "en": "Express Cash Loan",
+      "az": "Ekspress nağd kredit",
+      "ru": "Экспресс-кредит наличными"
+    },
+    "purpose.personal": {
+      "en": "Personal needs",
+      "az": "Şəxsi ehtiyaclar",
+      "ru": "Личные нужды"
+    },
+    "purpose.car": {
+      "en": "Car purchase",
+      "az": "Avtomobil alışı",
+      "ru": "Покупка автомобиля"
+    },
+    "purpose.home": {
+      "en": "Home purchase",
+      "az": "Mənzil alışı",
+      "ru": "Покупка жилья"
+    },
+    "purpose.renovation": {
+      "en": "Renovation",
+      "az": "Təmir",
+      "ru": "Ремонт"
+    },
+    "purpose.education": {
+      "en": "Education",
+      "az": "Təhsil",
+      "ru": "Образование"
+    },
+    "purpose.business": {
+      "en": "Business",
+      "az": "Biznes",
+      "ru": "Бизнес"
+    }
+  }
+}

@@ -3,7 +3,11 @@ import '../utils/loan_math.dart';
 
 class LoanProduct {
   final LoanType type;
+  /// Translation key for the short name (chips), e.g. product.consumer
   final String name;
+
+  /// Translation key for the full loan name, e.g. product.consumer_loan
+  final String loanName;
   final double annualRate;
   final double minAmount;
   final double maxAmount;
@@ -14,6 +18,7 @@ class LoanProduct {
   const LoanProduct({
     required this.type,
     required this.name,
+    required this.loanName,
     required this.annualRate,
     required this.minAmount,
     required this.maxAmount,
@@ -31,7 +36,8 @@ class MockData {
   static const products = <LoanProduct>[
     LoanProduct(
       type: LoanType.consumer,
-      name: 'Consumer',
+      name: 'product.consumer',
+      loanName: 'product.consumer_loan',
       annualRate: 17,
       minAmount: 500,
       maxAmount: 30000,
@@ -41,7 +47,8 @@ class MockData {
     ),
     LoanProduct(
       type: LoanType.car,
-      name: 'Car',
+      name: 'product.car',
+      loanName: 'product.car_loan',
       annualRate: 13.5,
       minAmount: 5000,
       maxAmount: 80000,
@@ -51,7 +58,8 @@ class MockData {
     ),
     LoanProduct(
       type: LoanType.mortgage,
-      name: 'Mortgage',
+      name: 'product.mortgage',
+      loanName: 'product.mortgage_loan',
       annualRate: 8,
       minAmount: 10000,
       maxAmount: 300000,
@@ -61,7 +69,8 @@ class MockData {
     ),
     LoanProduct(
       type: LoanType.business,
-      name: 'Business',
+      name: 'product.business',
+      loanName: 'product.business_loan',
       annualRate: 15,
       minAmount: 5000,
       maxAmount: 150000,
@@ -71,13 +80,14 @@ class MockData {
     ),
   ];
 
+  /// Translation keys.
   static const purposes = <String>[
-    'Personal needs',
-    'Car purchase',
-    'Home purchase',
-    'Renovation',
-    'Education',
-    'Business',
+    'purpose.personal',
+    'purpose.car',
+    'purpose.home',
+    'purpose.renovation',
+    'purpose.education',
+    'purpose.business',
   ];
 
   /// Dates are relative to today so paid / overdue / next always look realistic.
@@ -87,7 +97,7 @@ class MockData {
       _loan(
         id: 'L001',
         type: LoanType.consumer,
-        name: 'Consumer Loan',
+        name: 'product.consumer_loan',
         contractNo: 'CL-2025-004187',
         amount: 5000,
         rate: 18,
@@ -98,7 +108,7 @@ class MockData {
       _loan(
         id: 'L002',
         type: LoanType.car,
-        name: 'Car Loan',
+        name: 'product.car_loan',
         contractNo: 'AU-2026-000932',
         amount: 25000,
         rate: 14,
@@ -109,7 +119,7 @@ class MockData {
       _loan(
         id: 'L003',
         type: LoanType.mortgage,
-        name: 'Mortgage',
+        name: 'product.mortgage_loan',
         contractNo: 'MG-2026-000215',
         amount: 80000,
         rate: 9,
@@ -120,7 +130,7 @@ class MockData {
       _loan(
         id: 'L004',
         type: LoanType.consumer,
-        name: 'Express Cash Loan',
+        name: 'product.express_loan',
         contractNo: 'EX-2025-011508',
         amount: 2000,
         rate: 20,

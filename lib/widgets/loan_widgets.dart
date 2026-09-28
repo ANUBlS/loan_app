@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../i18n/l10n.dart';
 import '../models/loan.dart';
 import '../theme.dart';
 import '../utils/format.dart';
@@ -68,20 +69,20 @@ class LoanStateChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return switch (state) {
-      LoanState.active => const Pill(
-          text: 'Active',
+      LoanState.active => Pill(
+          text: context.tr('state.active'),
           color: AppColors.primary,
           background: AppColors.primarySoft,
         ),
-      LoanState.overdue => const Pill(
-          text: 'Overdue',
+      LoanState.overdue => Pill(
+          text: context.tr('state.overdue'),
           color: AppColors.overdue,
           background: AppColors.overdueBg,
         ),
-      LoanState.closed => const Pill(
-          text: 'Closed',
+      LoanState.closed => Pill(
+          text: context.tr('state.closed'),
           color: AppColors.muted,
-          background: Color(0xFFEDEFF1),
+          background: const Color(0xFFEDEFF1),
         ),
     };
   }
@@ -148,7 +149,7 @@ class LoanCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          loan.productName,
+                          context.tr(loan.productName),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -171,7 +172,7 @@ class LoanCard extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                isClosed ? 'Loan amount' : 'Outstanding',
+                context.tr(isClosed ? 'card.loan_amount' : 'card.outstanding'),
                 style: const TextStyle(fontSize: 13, color: AppColors.muted),
               ),
               const SizedBox(height: 2),
@@ -198,13 +199,16 @@ class LoanCard extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                '${loan.paidCount} of ${loan.schedule.length} payments made',
+                context.tr('card.payments_made', {
+                  'paid': loan.paidCount,
+                  'total': loan.schedule.length,
+                }),
                 style: const TextStyle(fontSize: 12, color: AppColors.muted),
               ),
               const SizedBox(height: 12),
               const Divider(height: 1, color: AppColors.line),
               const SizedBox(height: 12),
-              _footer(),
+              _footer(context),
             ],
           ),
         ),
@@ -212,18 +216,18 @@ class LoanCard extends StatelessWidget {
     );
   }
 
-  Widget _footer() {
+  Widget _footer(BuildContext context) {
     const chevron = Icon(Icons.chevron_right, color: AppColors.muted);
 
     if (loan.state == LoanState.closed) {
-      return const Row(
+      return Row(
         children: [
-          Icon(Icons.verified_outlined, color: AppColors.paid, size: 20),
-          SizedBox(width: 8),
+          const Icon(Icons.verified_outlined, color: AppColors.paid, size: 20),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Fully repaid',
-              style: TextStyle(
+              context.tr('card.fully_repaid'),
+              style: const TextStyle(
                 color: AppColors.paid,
                 fontWeight: FontWeight.w600,
               ),
@@ -242,7 +246,8 @@ class LoanCard extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Overdue ${formatMoney(overdue, loan.currency)}',
+              context.tr('card.overdue_amount',
+                  {'amount': formatMoney(overdue, loan.currency)}),
               style: const TextStyle(
                 color: AppColors.overdue,
                 fontWeight: FontWeight.w600,
@@ -262,7 +267,7 @@ class LoanCard extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Text(
-            'Next payment ${formatDate(next.dueDate)}',
+            context.tr('card.next_payment', {'date': formatDate(next.dueDate)}),
             style: const TextStyle(color: AppColors.ink),
           ),
         ),

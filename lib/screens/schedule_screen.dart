@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../i18n/l10n.dart';
 import '../models/loan.dart';
 import '../theme.dart';
 import '../utils/format.dart';
@@ -40,7 +41,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final focus = overdue.isNotEmpty ? overdue.first : loan.nextInstallment(now);
 
     return Scaffold(
-      appBar: AppBar(title: Text(loan.productName)),
+      appBar: AppBar(title: Text(context.tr(loan.productName))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
         child: Column(
@@ -58,9 +59,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             const SizedBox(height: 22),
             Row(
               children: [
-                const Text(
-                  'Payment schedule',
-                  style: TextStyle(
+                Text(
+                  context.tr('schedule.title'),
+                  style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                     color: AppColors.ink,
@@ -68,7 +69,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ),
                 const Spacer(),
                 Text(
-                  '${loan.paidCount}/${loan.schedule.length} paid',
+                  context.tr('schedule.paid_count', {
+                    'paid': loan.paidCount,
+                    'total': loan.schedule.length,
+                  }),
                   style: const TextStyle(color: AppColors.muted),
                 ),
               ],
@@ -112,16 +116,24 @@ class _LoanSummary extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _row('Contract', loan.contractNo),
-          _row('Loan amount', formatMoney(loan.amount, c)),
-          _row('Interest rate', '${loan.annualRate.toStringAsFixed(1)}% per year'),
-          _row('Term', formatTerm(loan.termMonths)),
-          _row('Monthly payment', formatMoney(loan.monthlyPayment, c)),
-          _row('Paid so far', formatMoney(loan.paidTotal, c), AppColors.paid),
-          _row('Outstanding principal', formatMoney(loan.outstandingPrincipal, c)),
-          _row('Opened', formatDate(loan.startDate)),
+          _row(context.tr('schedule.contract'), loan.contractNo),
+          _row(context.tr('schedule.loan_amount'), formatMoney(loan.amount, c)),
+          _row(
+            context.tr('schedule.rate'),
+            context.tr('schedule.rate_value',
+                {'rate': loan.annualRate.toStringAsFixed(1)}),
+          ),
+          _row(context.tr('schedule.term'), formatTerm(loan.termMonths)),
+          _row(context.tr('schedule.monthly'),
+              formatMoney(loan.monthlyPayment, c)),
+          _row(context.tr('schedule.paid_so_far'),
+              formatMoney(loan.paidTotal, c), AppColors.paid),
+          _row(context.tr('schedule.outstanding'),
+              formatMoney(loan.outstandingPrincipal, c)),
+          _row(context.tr('schedule.opened'), formatDate(loan.startDate)),
           if (loan.finalPaymentDate != null)
-            _row('Final payment', formatDate(loan.finalPaymentDate!)),
+            _row(context.tr('schedule.final_payment'),
+                formatDate(loan.finalPaymentDate!)),
         ],
       ),
     );
@@ -173,8 +185,8 @@ class _OverdueBanner extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              '$count overdue ${count == 1 ? 'payment' : 'payments'}: '
-              '${formatMoney(amount, currency)}. Pay now to avoid penalties.',
+              context.trn('schedule.overdue_banner', count,
+                  {'amount': formatMoney(amount, currency)}),
               style: const TextStyle(
                 color: AppColors.overdue,
                 fontWeight: FontWeight.w600,
@@ -196,12 +208,12 @@ class _Legend extends StatelessWidget {
       spacing: 16,
       runSpacing: 8,
       children: [
-        for (final s in InstallmentStatus.values) _item(s),
+        for (final s in InstallmentStatus.values) _item(context, s),
       ],
     );
   }
 
-  Widget _item(InstallmentStatus status) {
+  Widget _item(BuildContext context, InstallmentStatus status) {
     final style = StatusStyle.of(status);
     final isUpcoming = status == InstallmentStatus.upcoming;
     return Row(
@@ -218,7 +230,7 @@ class _Legend extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          style.label,
+          context.tr(style.label),
           style: const TextStyle(fontSize: 13, color: AppColors.ink),
         ),
       ],
@@ -240,17 +252,17 @@ class InstallmentTile extends StatelessWidget {
     required this.today,
   });
 
-  String _days(int d) => d == 1 ? '1 day' : '$d days';
-
-  String _caption() {
+  String _caption(BuildContext context) {
     final overdueDays = daysBetween(installment.dueDate, today);
     final daysLeft = daysBetween(today, installment.dueDate);
     return switch (status) {
-      InstallmentStatus.paid => 'Paid on ${formatDate(installment.paidDate!)}',
-      InstallmentStatus.overdue => 'Overdue by ${_days(overdueDays)}',
-      InstallmentStatus.next =>
-        daysLeft == 0 ? 'Due today' : 'Next payment, in ${_days(daysLeft)}',
-      InstallmentStatus.upcoming => 'Scheduled',
+      InstallmentStatus.paid => context.tr(
+          'inst.paid_on', {'date': formatDate(installment.paidDate!)}),
+      InstallmentStatus.overdue => context.trn('inst.overdue_by', overdueDays),
+      InstallmentStatus.next => daysLeft == 0
+          ? context.tr('inst.due_today')
+          : context.trn('inst.due_in', daysLeft),
+      InstallmentStatus.upcoming => context.tr('inst.scheduled'),
     };
   }
 
@@ -308,7 +320,7 @@ class InstallmentTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  _caption(),
+                  _caption(context),
                   style: TextStyle(
                     fontSize: 13,
                     color: isUpcoming ? AppColors.muted : style.color,
@@ -332,11 +344,13 @@ class InstallmentTile extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                'Principal ${formatAmount(installment.principal)}',
+                context.tr('inst.principal',
+                    {'v': formatAmount(installment.principal)}),
                 style: const TextStyle(fontSize: 11, color: AppColors.muted),
               ),
               Text(
-                'Interest ${formatAmount(installment.interest)}',
+                context.tr('inst.interest',
+                    {'v': formatAmount(installment.interest)}),
                 style: const TextStyle(fontSize: 11, color: AppColors.muted),
               ),
             ],

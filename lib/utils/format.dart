@@ -1,3 +1,5 @@
+import '../i18n/l10n.dart';
+
 /// 12345.6 -> "12 345.60"
 String formatAmount(double value) {
   final fixed = value.abs().toStringAsFixed(2);
@@ -16,12 +18,14 @@ String formatMoney(double value, [String currency = 'AZN']) =>
 
 String formatDate(DateTime d) => '${_two(d.day)}.${_two(d.month)}.${d.year}';
 
+/// "24 months (2 years)" in the current language.
 String formatTerm(int months) {
+  final l = L10n.instance;
+  final m = l.plural('term.months', months);
   if (months >= 12 && months % 12 == 0) {
-    final years = months ~/ 12;
-    return '$months months ($years ${years == 1 ? 'year' : 'years'})';
+    return '$m (${l.plural('term.years', months ~/ 12)})';
   }
-  return '$months months';
+  return m;
 }
 
 String _two(int n) => n.toString().padLeft(2, '0');

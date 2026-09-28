@@ -41,3 +41,9 @@ Simulator: Features > Face ID > Enrolled, then Matching Face when prompted.
 ## Swapping mock data for the real API
 All data goes through lib/data/loan_repository.dart. Replace MockData.loans()
 and submitApplication() with HTTP calls; screens stay unchanged.
+
+## Languages
+All texts live in assets/i18n/translations.json (English, Azerbaijani, Russian).
+Edit the texts there, keep keys and {placeholders} unchanged.
+To add a language, add its code under "languages" and a text for it in every key.
+The chosen language is saved on the device and kept after sign out.

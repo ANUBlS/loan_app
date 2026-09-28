@@ -31,7 +31,7 @@ class LoanRepository extends ChangeNotifier {
     final app = LoanApplication(
       id: 'APP-${now.millisecondsSinceEpoch.toString().substring(7)}',
       type: product.type,
-      productName: '${product.name} Loan',
+      productName: product.loanName,
       amount: amount,
       termMonths: termMonths,
       annualRate: product.annualRate,
