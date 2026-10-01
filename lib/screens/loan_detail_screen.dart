@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../data/loan_repository.dart';
 import '../i18n/l10n.dart';
 import '../models/loan.dart';
-import '../services/auth_service.dart';
+import '../services/payment_flow.dart';
 import '../theme.dart';
 import '../utils/format.dart';
 import '../widgets/loan_widgets.dart';
@@ -25,48 +25,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
   int _tab = 0;
   bool _paying = false;
 
-  void _snack(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
-  }
-
-  Future<void> _pay(Loan loan, Installment inst) async {
-    final l = L10n.instance;
-    final amount = formatMoney(inst.total, loan.currency);
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(ctx.tr('pay.confirm_title')),
-        content: Text(ctx.tr('pay.confirm_body', {
-          'amount': amount,
-          'n': inst.number,
-          'loan': ctx.tr(loan.productName),
-        })),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(ctx.tr('common.cancel')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(ctx.tr('detail.pay_now')),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-
+  Future<void> _pay(Loan loan) async {
     setState(() => _paying = true);
-    final result = await AuthService().authenticate(l.t('pay.reason'));
-    if (!mounted) return;
-    setState(() => _paying = false);
-
-    if (!result.success) {
-      _snack(result.message ?? l.t('order.err_confirm'));
-      return;
-    }
-    _repo.payNext(loan.id);
-    _snack(l.t('pay.success', {'amount': amount}));
+    await payNextInstallment(context, loan);
+    if (mounted) setState(() => _paying = false);
   }
 
   void _showInfo(Loan loan) {
@@ -201,7 +163,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                         ? AppColors.overdue
                         : AppColors.primary,
                   ),
-                  onPressed: _paying ? null : () => _pay(loan, inst),
+                  onPressed: _paying ? null : () => _pay(loan),
                   child: _paying
                       ? const SizedBox(
                           width: 20,

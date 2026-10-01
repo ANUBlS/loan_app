@@ -103,6 +103,46 @@
       "az": "Ödənilib: {paid}/{total}",
       "ru": "Выполнено платежей: {paid} из {total}"
     },
+    "carousel.amount": {
+      "en": "Loan amount: {amount}",
+      "az": "Kredit məbləği: {amount}",
+      "ru": "Сумма кредита: {amount}"
+    },
+    "carousel.new_body": {
+      "en": "Apply online in a few minutes.",
+      "az": "Bir neçə dəqiqəyə onlayn müraciət edin.",
+      "ru": "Подайте заявку онлайн за несколько минут."
+    },
+    "carousel.new_button": {
+      "en": "Apply",
+      "az": "Müraciət et",
+      "ru": "Подать заявку"
+    },
+    "carousel.new_title": {
+      "en": "Need a new loan?",
+      "az": "Yeni kredit lazımdır?",
+      "ru": "Нужен новый кредит?"
+    },
+    "carousel.next": {
+      "en": "Next payment: {date}",
+      "az": "Növbəti ödəniş: {date}",
+      "ru": "Следующий платёж: {date}"
+    },
+    "carousel.pay_monthly": {
+      "en": "Pay monthly • {amount}",
+      "az": "Aylıq ödənişi et • {amount}",
+      "ru": "Внести платёж • {amount}"
+    },
+    "carousel.pay_overdue": {
+      "en": "Pay overdue • {amount}",
+      "az": "Gecikməni ödə • {amount}",
+      "ru": "Погасить просрочку • {amount}"
+    },
+    "carousel.remaining": {
+      "en": "Remaining debt",
+      "az": "Qalan borcunuz",
+      "ru": "Остаток долга"
+    },
     "common.cancel": {
       "en": "Cancel",
       "az": "Ləğv et",
@@ -278,11 +318,6 @@
       "az": "Salam!",
       "ru": "Здравствуйте!"
     },
-    "home.history": {
-      "en": "History",
-      "az": "Tarixçə",
-      "ru": "История"
-    },
     "home.nothing_to_pay": {
       "en": "You have nothing to pay right now.",
       "az": "Hazırda ödəniləcək borcunuz yoxdur.",
@@ -292,11 +327,6 @@
       "en": "Open loans: {n}",
       "az": "Aktiv kreditlər: {n}",
       "ru": "Открытые кредиты: {n}"
-    },
-    "home.pay": {
-      "en": "Pay",
-      "az": "Ödə",
-      "ru": "Оплатить"
     },
     "inst.due_in": {
       "en": {
@@ -349,6 +379,16 @@
       "az": "Planlaşdırılıb",
       "ru": "Запланирован"
     },
+    "loans.all_button": {
+      "en": "All my loans",
+      "az": "Bütün kreditlərim",
+      "ru": "Все мои кредиты"
+    },
+    "loans.all_title": {
+      "en": "All my loans",
+      "az": "Bütün kreditlərim",
+      "ru": "Все мои кредиты"
+    },
     "loans.app_line": {
       "en": "{amount}, {term}",
       "az": "{amount}, {term}",
@@ -358,21 +398,6 @@
       "en": "Applications",
       "az": "Müraciətlər",
       "ru": "Заявки"
-    },
-    "loans.empty": {
-      "en": "You have no loans yet.",
-      "az": "Hələ kreditiniz yoxdur.",
-      "ru": "У вас пока нет кредитов."
-    },
-    "loans.order_button": {
-      "en": "Order a loan",
-      "az": "Kredit sifariş edin",
-      "ru": "Заказать кредит"
-    },
-    "loans.section": {
-      "en": "Loans ({n})",
-      "az": "Kreditlər ({n})",
-      "ru": "Кредиты ({n})"
     },
     "loans.total_outstanding": {
       "en": "Total outstanding",

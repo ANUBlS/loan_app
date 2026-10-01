@@ -6,12 +6,14 @@ import '../models/loan.dart';
 import '../services/auth_service.dart';
 import '../theme.dart';
 import '../utils/format.dart';
+import '../widgets/loan_carousel.dart';
 import '../widgets/loan_widgets.dart';
 import '../widgets/profile_menu.dart';
+import 'all_loans_screen.dart';
 import 'loan_detail_screen.dart';
 import 'schedule_screen.dart';
 
-/// Home tab: greeting, quick actions, summary card and the list of loans.
+/// Home tab: greeting, quick actions, swipeable loan cards, summary.
 class LoansScreen extends StatefulWidget {
   final VoidCallback onOrderLoan;
   final ValueChanged<int> onOpenTab;
@@ -39,8 +41,7 @@ class _LoansScreenState extends State<LoansScreen> {
     });
   }
 
-  String _money(double v) =>
-      _hidden ? '$hiddenAmount AZN' : formatMoney(v);
+  String _money(double v) => _hidden ? '$hiddenAmount AZN' : formatMoney(v);
 
   void _openLoan(Loan loan) {
     Navigator.of(context).push(
@@ -48,7 +49,7 @@ class _LoansScreenState extends State<LoansScreen> {
     );
   }
 
-  void _openUrgent({bool schedule = false}) {
+  void _openUrgentSchedule() {
     final loan = _repo.urgentLoan;
     if (loan == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,11 +58,7 @@ class _LoansScreenState extends State<LoansScreen> {
       return;
     }
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => schedule
-            ? ScheduleScreen(loanId: loan.id)
-            : LoanDetailScreen(loanId: loan.id),
-      ),
+      MaterialPageRoute(builder: (_) => ScheduleScreen(loanId: loan.id)),
     );
   }
 
@@ -173,155 +170,195 @@ class _LoansScreenState extends State<LoansScreen> {
             final firstName = _name.trim().split(' ').first;
 
             return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
               children: [
                 // Header: avatar, greeting, eye, bell
-                Row(
-                  children: [
-                    const ProfileAvatarButton(),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        firstName.isEmpty
-                            ? context.tr('home.greeting_plain')
-                            : context.tr('home.greeting', {'name': firstName}),
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.ink,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => setState(() => _hidden = !_hidden),
-                      icon: Icon(
-                        _hidden
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: AppColors.ink,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: _showNotifications,
-                      icon: Badge(
-                        isLabelVisible: hasAlerts,
-                        smallSize: 9,
-                        child: const Icon(
-                          Icons.notifications_none,
-                          color: AppColors.ink,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Quick actions
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _tile(Icons.add_card, AppColors.primary,
-                        context.tr('home.action_order'), widget.onOrderLoan),
-                    _tile(Icons.calendar_month, const Color(0xFF7C3AED),
-                        context.tr('home.action_schedule'),
-                        () => _openUrgent(schedule: true)),
-                    _tile(Icons.description, const Color(0xFF0EA5E9),
-                        context.tr('home.action_docs'),
-                        () => widget.onOpenTab(2)),
-                    _tile(Icons.translate, const Color(0xFFF97316),
-                        context.tr('home.action_language'),
-                        () => showLanguagePicker(context)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Summary card
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardBlue,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
                     children: [
-                      Text(
-                        context.tr('loans.total_outstanding'),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.ink,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _money(outstanding),
-                        style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.ink,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 6,
-                        children: [
-                          Pill(
-                            text: context.tr('home.open_count',
-                                {'n': open.length}),
+                      const ProfileAvatarButton(),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          firstName.isEmpty
+                              ? context.tr('home.greeting_plain')
+                              : context.tr('home.greeting', {'name': firstName}),
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
                             color: AppColors.ink,
-                            background: Colors.white,
                           ),
-                          if (overdue > 0)
-                            Pill(
-                              text: context.tr('card.overdue_amount',
-                                  {'amount': _money(overdue)}),
-                              color: AppColors.overdue,
-                              background: Colors.white,
-                            ),
-                        ],
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _blueButton(Icons.payments_outlined,
-                                context.tr('home.pay'), _openUrgent),
+                      IconButton(
+                        onPressed: () => setState(() => _hidden = !_hidden),
+                        icon: Icon(
+                          _hidden
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: _showNotifications,
+                        icon: Badge(
+                          isLabelVisible: hasAlerts,
+                          smallSize: 9,
+                          child: const Icon(
+                            Icons.notifications_none,
+                            color: AppColors.ink,
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _blueButton(Icons.history,
-                                context.tr('home.history'),
-                                () => widget.onOpenTab(1)),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(height: 16),
 
-                if (applications.isNotEmpty) ...[
-                  SectionTitle(context.tr('loans.applications')),
-                  for (final a in applications)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: _ApplicationTile(application: a),
-                    ),
-                ],
-                SectionTitle(context.tr('loans.section', {'n': loans.length})),
-                if (loans.isEmpty)
-                  _EmptyState(onOrderLoan: widget.onOrderLoan)
-                else
-                  for (final loan in loans)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: LoanCard(
-                        loan: loan,
-                        hideAmounts: _hidden,
-                        onTap: () => _openLoan(loan),
+                // Quick actions
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _tile(Icons.add_card, AppColors.primary,
+                          context.tr('home.action_order'), widget.onOrderLoan),
+                      _tile(Icons.calendar_month, const Color(0xFF7C3AED),
+                          context.tr('home.action_schedule'),
+                          _openUrgentSchedule),
+                      _tile(Icons.description, const Color(0xFF0EA5E9),
+                          context.tr('home.action_docs'),
+                          () => widget.onOpenTab(2)),
+                      _tile(Icons.translate, const Color(0xFFF97316),
+                          context.tr('home.action_language'),
+                          () => showLanguagePicker(context)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                // Swipeable loan cards (edge to edge, like the video)
+                LoanCarousel(
+                  loans: loans,
+                  hideAmounts: _hidden,
+                  onOpen: _openLoan,
+                  onOrder: widget.onOrderLoan,
+                ),
+                const SizedBox(height: 14),
+
+                // "All my loans" pill
+                Center(
+                  child: Material(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(22),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const AllLoansScreen(),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 10),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              context.tr('loans.all_button'),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.ink,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.arrow_forward,
+                                size: 18, color: AppColors.ink),
+                          ],
+                        ),
                       ),
                     ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                // Compact summary
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: WhiteCard(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('loans.total_outstanding'),
+                                style: const TextStyle(
+                                    fontSize: 13, color: AppColors.muted),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _money(outstanding),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.ink,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                context.tr('home.open_count',
+                                    {'n': open.length}),
+                                style: const TextStyle(
+                                    fontSize: 13, color: AppColors.muted),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (overdue > 0)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                context.tr('state.overdue'),
+                                style: const TextStyle(
+                                    fontSize: 13, color: AppColors.overdue),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _money(overdue),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.overdue,
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                if (applications.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SectionTitle(context.tr('loans.applications')),
+                        for (final a in applications)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: _ApplicationTile(application: a),
+                          ),
+                      ],
+                    ),
+                  ),
               ],
             );
           },
@@ -359,15 +396,6 @@ class _LoansScreenState extends State<LoansScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _blueButton(IconData icon, String label, VoidCallback onTap) {
-    return FilledButton.icon(
-      style: FilledButton.styleFrom(minimumSize: const Size(0, 46)),
-      onPressed: onTap,
-      icon: Icon(icon, size: 20),
-      label: Text(label, overflow: TextOverflow.ellipsis),
     );
   }
 }
@@ -411,33 +439,6 @@ class _ApplicationTile extends StatelessWidget {
             text: context.tr('loans.under_review'),
             color: AppColors.next,
             background: AppColors.nextBg,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  final VoidCallback onOrderLoan;
-  const _EmptyState({required this.onOrderLoan});
-
-  @override
-  Widget build(BuildContext context) {
-    return WhiteCard(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            context.tr('loans.empty'),
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16, color: AppColors.ink),
-          ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: onOrderLoan,
-            child: Text(context.tr('loans.order_button')),
           ),
         ],
       ),
