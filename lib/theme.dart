@@ -3,20 +3,29 @@ import 'package:flutter/material.dart';
 import 'models/loan.dart';
 
 class AppColors {
-  static const ink = Color(0xFF14213D);
-  static const primary = Color(0xFF0F5C58);
-  static const primarySoft = Color(0xFFE3EFED);
-  static const surface = Color(0xFFF3F5F4);
-  static const muted = Color(0xFF6B7682);
-  static const line = Color(0xFFE1E6E4);
+  static const primary = Color(0xFF1F5EF0);
+  static const primaryLight = Color(0xFF3F78F6);
+  static const primarySoft = Color(0xFFE6EEFF);
+  static const cardBlue = Color(0xFFD3E2FD);
+  static const ink = Color(0xFF111827);
+  static const surface = Color(0xFFF2F4F8);
+  static const muted = Color(0xFF6B7280);
+  static const line = Color(0xFFE5E7EB);
+  static const tableHeader = Color(0xFFF3F4F6);
 
-  static const paid = Color(0xFF2E7D4F);
-  static const paidBg = Color(0xFFE8F5EC);
-  static const overdue = Color(0xFFC0392B);
-  static const overdueBg = Color(0xFFFDECEA);
-  static const next = Color(0xFF1F5FBF);
-  static const nextBg = Color(0xFFEAF1FC);
-  static const upcoming = Color(0xFF8A949E);
+  static const paid = Color(0xFF16A34A);
+  static const paidBg = Color(0xFFE8F7EE);
+  static const overdue = Color(0xFFDC2626);
+  static const overdueBg = Color(0xFFFDECEC);
+  static const next = Color(0xFF1F5EF0);
+  static const nextBg = Color(0xFFE6EEFF);
+  static const upcoming = Color(0xFF9CA3AF);
+
+  static const headerGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [primaryLight, primary],
+  );
 }
 
 class AppTheme {
@@ -38,11 +47,11 @@ class AppTheme {
         foregroundColor: AppColors.ink,
         elevation: 0,
         scrolledUnderElevation: 0,
-        centerTitle: false,
+        centerTitle: true,
         titleTextStyle: TextStyle(
           color: AppColors.ink,
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -55,18 +64,23 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(54),
+          backgroundColor: AppColors.primary,
+          minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
           ),
           textStyle:
               const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
-      navigationBarTheme: const NavigationBarThemeData(
+      chipTheme: ChipThemeData(
         backgroundColor: Colors.white,
-        indicatorColor: AppColors.primarySoft,
+        selectedColor: AppColors.primarySoft,
+        side: const BorderSide(color: AppColors.line),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        labelStyle: const TextStyle(color: AppColors.ink),
       ),
+      dividerColor: AppColors.line,
     );
   }
 }
@@ -76,6 +90,7 @@ class AppTheme {
 class StatusStyle {
   final Color color;
   final Color background;
+
   /// Translation key.
   final String label;
 
@@ -84,8 +99,8 @@ class StatusStyle {
   static StatusStyle of(InstallmentStatus s) => switch (s) {
         InstallmentStatus.paid =>
           const StatusStyle(AppColors.paid, AppColors.paidBg, 'status.paid'),
-        InstallmentStatus.overdue =>
-          const StatusStyle(AppColors.overdue, AppColors.overdueBg, 'status.overdue'),
+        InstallmentStatus.overdue => const StatusStyle(
+            AppColors.overdue, AppColors.overdueBg, 'status.overdue'),
         InstallmentStatus.next =>
           const StatusStyle(AppColors.next, AppColors.nextBg, 'status.next'),
         InstallmentStatus.upcoming =>

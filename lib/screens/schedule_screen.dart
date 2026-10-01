@@ -1,199 +1,245 @@
 import 'package:flutter/material.dart';
 
+import '../data/loan_repository.dart';
 import '../i18n/l10n.dart';
 import '../models/loan.dart';
 import '../theme.dart';
 import '../utils/format.dart';
+import '../widgets/loan_widgets.dart';
 
+/// Payment schedule as a table: Next / Past / All.
+/// Rows: paid = green, overdue = red, next = blue, upcoming = white.
 class ScheduleScreen extends StatefulWidget {
-  final Loan loan;
-  const ScheduleScreen({super.key, required this.loan});
+  final String loanId;
+  const ScheduleScreen({super.key, required this.loanId});
 
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
-  final _focusKey = GlobalKey();
+  int _filter = 0; // 0 next, 1 past, 2 all
 
-  @override
-  void initState() {
-    super.initState();
-    // Scroll to the first overdue payment, or the next one.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _focusKey.currentContext;
-      if (ctx != null) {
-        Scrollable.ensureVisible(
-          ctx,
-          duration: const Duration(milliseconds: 450),
-          curve: Curves.easeOut,
-          alignment: 0.3,
-        );
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final loan = widget.loan;
-    final now = DateTime.now();
-    final overdue = loan.overdueInstallments(now);
-    final focus = overdue.isNotEmpty ? overdue.first : loan.nextInstallment(now);
-
-    return Scaffold(
-      appBar: AppBar(title: Text(context.tr(loan.productName))),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _LoanSummary(loan: loan),
-            if (overdue.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              _OverdueBanner(
-                count: overdue.length,
-                amount: loan.overdueAmount(now),
-                currency: loan.currency,
-              ),
-            ],
-            const SizedBox(height: 22),
-            Row(
-              children: [
-                Text(
-                  context.tr('schedule.title'),
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.ink,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  context.tr('schedule.paid_count', {
-                    'paid': loan.paidCount,
-                    'total': loan.schedule.length,
-                  }),
-                  style: const TextStyle(color: AppColors.muted),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            const _Legend(),
-            const SizedBox(height: 14),
-            for (final inst in loan.schedule)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: InstallmentTile(
-                  key: focus != null && inst.number == focus.number
-                      ? _focusKey
-                      : null,
-                  installment: inst,
-                  status: loan.statusOf(inst, now),
-                  currency: loan.currency,
-                  today: now,
-                ),
-              ),
-          ],
+  void _showRow(Installment inst, InstallmentStatus status, Loan loan) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: AppColors.surface,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: InstallmentTile(
+            installment: inst,
+            status: status,
+            currency: loan.currency,
+            today: DateTime.now(),
+          ),
         ),
       ),
     );
   }
-}
-
-class _LoanSummary extends StatelessWidget {
-  final Loan loan;
-  const _LoanSummary({required this.loan});
 
   @override
   Widget build(BuildContext context) {
-    final c = loan.currency;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.line),
-      ),
-      child: Column(
-        children: [
-          _row(context.tr('schedule.contract'), loan.contractNo),
-          _row(context.tr('schedule.loan_amount'), formatMoney(loan.amount, c)),
-          _row(
-            context.tr('schedule.rate'),
-            context.tr('schedule.rate_value',
-                {'rate': loan.annualRate.toStringAsFixed(1)}),
+    final repo = LoanRepository.instance;
+    return ListenableBuilder(
+      listenable: repo,
+      builder: (context, _) {
+        final loan = repo.byId(widget.loanId);
+        if (loan == null) return const Scaffold();
+
+        final now = DateTime.now();
+        final overdue = loan.overdueInstallments(now);
+        final rows = switch (_filter) {
+          0 => loan.schedule.where((i) => !i.isPaid).toList(),
+          1 => loan.schedule.where((i) => i.isPaid).toList(),
+          _ => loan.schedule,
+        };
+        final filters = [
+          context.tr('schedule.tab_next'),
+          context.tr('schedule.tab_past'),
+          context.tr('schedule.tab_all'),
+        ];
+
+        return Scaffold(
+          appBar: AppBar(title: Text(context.tr('schedule.title'))),
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+            children: [
+              Text(
+                context.tr('schedule.account'),
+                style: const TextStyle(fontSize: 14, color: AppColors.ink),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                loan.contractNo,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.muted,
+                ),
+              ),
+              const SizedBox(height: 18),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (var i = 0; i < filters.length; i++)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          showCheckmark: false,
+                          label: Text(
+                            filters[i],
+                            style: TextStyle(
+                              color: i == _filter
+                                  ? AppColors.primary
+                                  : AppColors.ink,
+                              fontWeight: i == _filter
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
+                          ),
+                          selected: i == _filter,
+                          onSelected: (_) => setState(() => _filter = i),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              const _Legend(),
+              if (overdue.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                OverdueBanner(
+                  count: overdue.length,
+                  amount: loan.overdueAmount(now),
+                  currency: loan.currency,
+                ),
+              ],
+              const SizedBox(height: 12),
+              Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.line),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      color: AppColors.tableHeader,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        children: [
+                          _head(context.tr('schedule.col_date'), 3),
+                          _head(context.tr('schedule.col_amount'), 2),
+                          _head(context.tr('schedule.col_principal'), 2),
+                          _head(context.tr('schedule.col_interest'), 2),
+                        ],
+                      ),
+                    ),
+                    if (rows.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          context.tr('schedule.empty'),
+                          style: const TextStyle(color: AppColors.muted),
+                        ),
+                      ),
+                    for (final inst in rows)
+                      _row(inst, loan.statusOf(inst, now), loan),
+                  ],
+                ),
+              ),
+            ],
           ),
-          _row(context.tr('schedule.term'), formatTerm(loan.termMonths)),
-          _row(context.tr('schedule.monthly'),
-              formatMoney(loan.monthlyPayment, c)),
-          _row(context.tr('schedule.paid_so_far'),
-              formatMoney(loan.paidTotal, c), AppColors.paid),
-          _row(context.tr('schedule.outstanding'),
-              formatMoney(loan.outstandingPrincipal, c)),
-          _row(context.tr('schedule.opened'), formatDate(loan.startDate)),
-          if (loan.finalPaymentDate != null)
-            _row(context.tr('schedule.final_payment'),
-                formatDate(loan.finalPaymentDate!)),
-        ],
+        );
+      },
+    );
+  }
+
+  Widget _head(String text, int flex) {
+    return Expanded(
+      flex: flex,
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.ink,
+        ),
       ),
     );
   }
 
-  Widget _row(String label, String value, [Color color = AppColors.ink]) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          Text(label, style: const TextStyle(color: AppColors.muted)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
-              style: TextStyle(fontWeight: FontWeight.w600, color: color),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+  Widget _row(Installment inst, InstallmentStatus status, Loan loan) {
+    final style = StatusStyle.of(status);
+    final textColor =
+        status == InstallmentStatus.overdue ? AppColors.overdue : AppColors.ink;
+    final cell = TextStyle(fontSize: 13, color: textColor);
 
-class _OverdueBanner extends StatelessWidget {
-  final int count;
-  final double amount;
-  final String currency;
-
-  const _OverdueBanner({
-    required this.count,
-    required this.amount,
-    required this.currency,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.overdueBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.overdue),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline, color: AppColors.overdue),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              context.trn('schedule.overdue_banner', count,
-                  {'amount': formatMoney(amount, currency)}),
-              style: const TextStyle(
-                color: AppColors.overdue,
-                fontWeight: FontWeight.w600,
+    return InkWell(
+      onTap: () => _showRow(inst, status, loan),
+      child: Container(
+        decoration: BoxDecoration(
+          color: style.background,
+          border: const Border(top: BorderSide(color: AppColors.line)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 13),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: status == InstallmentStatus.upcoming
+                          ? AppColors.line
+                          : style.color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    formatDate(inst.dueDate),
+                    style: cell.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+            Expanded(
+              flex: 2,
+              child: Text(
+                formatAmount(inst.total),
+                textAlign: TextAlign.center,
+                style: cell.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                formatAmount(inst.principal),
+                textAlign: TextAlign.center,
+                style: cell,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                formatAmount(inst.interest),
+                textAlign: TextAlign.center,
+                style: cell,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -238,6 +284,7 @@ class _Legend extends StatelessWidget {
   }
 }
 
+/// Detail card of one installment (shown when a table row is tapped).
 class InstallmentTile extends StatelessWidget {
   final Installment installment;
   final InstallmentStatus status;
@@ -270,24 +317,19 @@ class InstallmentTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = StatusStyle.of(status);
     final isUpcoming = status == InstallmentStatus.upcoming;
-    final emphasized = status == InstallmentStatus.next ||
-        status == InstallmentStatus.overdue;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: style.background,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isUpcoming ? AppColors.line : style.color,
-          width: emphasized ? 1.6 : 1,
-        ),
+        border: Border.all(color: isUpcoming ? AppColors.line : style.color),
       ),
       child: Row(
         children: [
           Container(
-            width: 34,
-            height: 34,
+            width: 40,
+            height: 40,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: isUpcoming ? Colors.white : style.color,
@@ -295,11 +337,10 @@ class InstallmentTile extends StatelessWidget {
               border: isUpcoming ? Border.all(color: AppColors.line) : null,
             ),
             child: status == InstallmentStatus.paid
-                ? const Icon(Icons.check, size: 18, color: Colors.white)
+                ? const Icon(Icons.check, size: 20, color: Colors.white)
                 : Text(
                     '${installment.number}',
                     style: TextStyle(
-                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: isUpcoming ? AppColors.muted : Colors.white,
                     ),
@@ -313,7 +354,7 @@ class InstallmentTile extends StatelessWidget {
                 Text(
                   '#${installment.number}  ${formatDate(installment.dueDate)}',
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.ink,
                   ),
@@ -323,21 +364,20 @@ class InstallmentTile extends StatelessWidget {
                   _caption(context),
                   style: TextStyle(
                     fontSize: 13,
+                    fontWeight: FontWeight.w600,
                     color: isUpcoming ? AppColors.muted : style.color,
-                    fontWeight: emphasized ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 formatMoney(installment.total, currency),
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.ink,
                 ),
@@ -346,12 +386,12 @@ class InstallmentTile extends StatelessWidget {
               Text(
                 context.tr('inst.principal',
                     {'v': formatAmount(installment.principal)}),
-                style: const TextStyle(fontSize: 11, color: AppColors.muted),
+                style: const TextStyle(fontSize: 12, color: AppColors.muted),
               ),
               Text(
                 context.tr('inst.interest',
                     {'v': formatAmount(installment.interest)}),
-                style: const TextStyle(fontSize: 11, color: AppColors.muted),
+                style: const TextStyle(fontSize: 12, color: AppColors.muted),
               ),
             ],
           ),

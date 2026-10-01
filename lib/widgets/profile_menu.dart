@@ -35,12 +35,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
     });
   }
 
-  String get _initials {
-    final parts =
-        _name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
-    if (parts.isEmpty) return '?';
-    return parts.take(2).map((p) => p[0].toUpperCase()).join();
-  }
+  String get _initials => initialsOf(_name);
 
   Future<void> _openSheet() async {
     final action = await showModalBottomSheet<String>(
@@ -143,6 +138,14 @@ class _Avatar extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "Teymur Aliyev" -> "TA"
+String initialsOf(String name) {
+  final parts =
+      name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+  if (parts.isEmpty) return '?';
+  return parts.take(2).map((p) => p[0].toUpperCase()).join();
 }
 
 /// Bottom sheet with every language from translations.json.

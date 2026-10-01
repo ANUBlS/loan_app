@@ -32,6 +32,15 @@ class Installment {
 
   bool get isPaid => paidDate != null;
   double get total => principal + interest;
+
+  Installment copyWith({DateTime? paidDate}) => Installment(
+        number: number,
+        dueDate: dueDate,
+        principal: principal,
+        interest: interest,
+        balanceAfter: balanceAfter,
+        paidDate: paidDate ?? this.paidDate,
+      );
 }
 
 class Loan {
@@ -60,7 +69,30 @@ class Loan {
     required this.schedule,
   });
 
+  Loan copyWith({List<Installment>? schedule}) => Loan(
+        id: id,
+        type: type,
+        productName: productName,
+        contractNo: contractNo,
+        currency: currency,
+        amount: amount,
+        annualRate: annualRate,
+        termMonths: termMonths,
+        startDate: startDate,
+        schedule: schedule ?? this.schedule,
+      );
+
   int get paidCount => schedule.where((i) => i.isPaid).length;
+
+  double get paidPrincipal => amount - outstandingPrincipal;
+
+  /// Earliest unpaid installment (overdue ones come first by date).
+  Installment? get firstUnpaid {
+    for (final i in schedule) {
+      if (!i.isPaid) return i;
+    }
+    return null;
+  }
 
   double get paidTotal =>
       schedule.where((i) => i.isPaid).fold<double>(0, (s, i) => s + i.total);

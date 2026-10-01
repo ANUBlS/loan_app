@@ -8,7 +8,6 @@ import '../theme.dart';
 import '../utils/format.dart';
 import '../utils/loan_math.dart';
 import '../widgets/loan_widgets.dart';
-import '../widgets/profile_menu.dart';
 
 class OrderLoanScreen extends StatefulWidget {
   final VoidCallback? onSubmitted;
@@ -119,6 +118,7 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
       _applyProduct(_product);
     });
     widget.onSubmitted?.call();
+    if (Navigator.of(context).canPop()) Navigator.of(context).pop();
   }
 
   @override
@@ -128,10 +128,7 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
     final total = monthly * _term;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: const ProfileAvatarButton(),
-        title: Text(context.tr('order.title')),
-      ),
+      appBar: AppBar(title: Text(context.tr('order.title'))),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
         children: [

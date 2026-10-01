@@ -30,7 +30,23 @@ class LoanProduct {
   int get amountDivisions => ((maxAmount - minAmount) / step).round();
 }
 
+class LoanDocument {
+  /// Translation key of the document name.
+  final String nameKey;
+  final int sizeKb;
+  const LoanDocument(this.nameKey, this.sizeKb);
+}
+
 class MockData {
+  static const documents = <LoanDocument>[
+    LoanDocument('doc.application', 98),
+    LoanDocument('doc.schedule', 100),
+    LoanDocument('doc.bureau', 118),
+    LoanDocument('doc.agreement', 140),
+    LoanDocument('doc.insurance', 67),
+    LoanDocument('doc.disbursement', 69),
+  ];
+
   static const currency = 'AZN';
 
   static const products = <LoanProduct>[

@@ -5,6 +5,8 @@ import '../models/loan.dart';
 import '../theme.dart';
 import '../utils/format.dart';
 
+const hiddenAmount = '•••••';
+
 IconData loanTypeIcon(LoanType type) => switch (type) {
       LoanType.consumer => Icons.shopping_bag_outlined,
       LoanType.car => Icons.directions_car_outlined,
@@ -108,11 +110,141 @@ class SectionTitle extends StatelessWidget {
   }
 }
 
+/// White rounded container used for most blocks.
+class WhiteCard extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  const WhiteCard({
+    super.key,
+    required this.child,
+    this.padding = EdgeInsets.zero,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: padding,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: child,
+    );
+  }
+}
+
+class OverdueBanner extends StatelessWidget {
+  final int count;
+  final double amount;
+  final String currency;
+
+  const OverdueBanner({
+    super.key,
+    required this.count,
+    required this.amount,
+    required this.currency,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.overdueBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.overdue),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.overdue),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              context.trn('schedule.overdue_banner', count,
+                  {'amount': formatMoney(amount, currency)}),
+              style: const TextStyle(
+                color: AppColors.overdue,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Key facts of a loan (amount, rate, term...).
+class LoanSummaryCard extends StatelessWidget {
+  final Loan loan;
+  const LoanSummaryCard({super.key, required this.loan});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = loan.currency;
+    return WhiteCard(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+      child: Column(
+        children: [
+          _row(context.tr('schedule.contract'), loan.contractNo),
+          _row(context.tr('schedule.loan_amount'), formatMoney(loan.amount, c)),
+          _row(
+            context.tr('schedule.rate'),
+            context.tr('schedule.rate_value',
+                {'rate': loan.annualRate.toStringAsFixed(1)}),
+          ),
+          _row(context.tr('schedule.term'), formatTerm(loan.termMonths)),
+          _row(context.tr('schedule.monthly'),
+              formatMoney(loan.monthlyPayment, c)),
+          _row(context.tr('schedule.paid_so_far'),
+              formatMoney(loan.paidTotal, c), AppColors.paid),
+          _row(context.tr('schedule.outstanding'),
+              formatMoney(loan.outstandingPrincipal, c)),
+          _row(context.tr('schedule.opened'), formatDate(loan.startDate)),
+          if (loan.finalPaymentDate != null)
+            _row(context.tr('schedule.final_payment'),
+                formatDate(loan.finalPaymentDate!)),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(String label, String value, [Color color = AppColors.ink]) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Text(label, style: const TextStyle(color: AppColors.muted)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(fontWeight: FontWeight.w600, color: color),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class LoanCard extends StatelessWidget {
   final Loan loan;
   final VoidCallback onTap;
+  final bool hideAmounts;
 
-  const LoanCard({super.key, required this.loan, required this.onTap});
+  const LoanCard({
+    super.key,
+    required this.loan,
+    required this.onTap,
+    this.hideAmounts = false,
+  });
+
+  String _money(double v) =>
+      hideAmounts ? '$hiddenAmount ${loan.currency}' : formatMoney(v, loan.currency);
 
   @override
   Widget build(BuildContext context) {
@@ -132,10 +264,9 @@ class LoanCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: isOverdue ? AppColors.overdue : AppColors.line,
-              width: isOverdue ? 1.5 : 1,
-            ),
+            border: isOverdue
+                ? Border.all(color: AppColors.overdue, width: 1.5)
+                : null,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,10 +308,7 @@ class LoanCard extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                formatMoney(
-                  isClosed ? loan.amount : loan.outstandingPrincipal,
-                  loan.currency,
-                ),
+                _money(isClosed ? loan.amount : loan.outstandingPrincipal),
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -193,8 +321,8 @@ class LoanCard extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 6,
-                  backgroundColor: AppColors.line,
-                  color: AppColors.paid,
+                  backgroundColor: AppColors.primarySoft,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 6),
@@ -246,8 +374,7 @@ class LoanCard extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              context.tr('card.overdue_amount',
-                  {'amount': formatMoney(overdue, loan.currency)}),
+              context.tr('card.overdue_amount', {'amount': _money(overdue)}),
               style: const TextStyle(
                 color: AppColors.overdue,
                 fontWeight: FontWeight.w600,
@@ -272,7 +399,7 @@ class LoanCard extends StatelessWidget {
           ),
         ),
         Text(
-          formatMoney(next.total, loan.currency),
+          _money(next.total),
           style: const TextStyle(
             fontWeight: FontWeight.w700,
             color: AppColors.next,

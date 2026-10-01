@@ -56,20 +56,63 @@ class StartupGate extends StatefulWidget {
 }
 
 class _StartupGateState extends State<StartupGate> {
-  late final Future<bool> _registered = AuthService().isRegistered();
+  // Show the splash for at least 900 ms.
+  late final Future<bool> _registered = Future.wait<Object?>([
+    AuthService().isRegistered(),
+    Future<void>.delayed(const Duration(milliseconds: 900)),
+  ]).then((r) => r.first as bool);
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
       future: _registered,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+        if (!snapshot.hasData) return const SplashView();
         return snapshot.data! ? const LockScreen() : const RegisterScreen();
       },
+    );
+  }
+}
+
+class SplashView extends StatelessWidget {
+  const SplashView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: AppColors.primary,
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(40),
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: const Icon(
+                  Icons.account_balance,
+                  color: Colors.white,
+                  size: 52,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                L10n.instance.t('app.title'),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
