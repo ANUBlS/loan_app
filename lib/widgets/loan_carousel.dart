@@ -28,7 +28,7 @@ class LoanCarousel extends StatefulWidget {
 }
 
 class _LoanCarouselState extends State<LoanCarousel> {
-  final _controller = PageController(viewportFraction: 0.94);
+  final _controller = PageController();
   int _page = 0;
 
   @override
@@ -37,94 +37,149 @@ class _LoanCarouselState extends State<LoanCarousel> {
     super.dispose();
   }
 
+  Color _colorAt(int i) =>
+      i < widget.loans.length ? _slideColor(widget.loans[i]) : Colors.white;
+
+  /// Current scroll position in pages (e.g. 1.4 while swiping 1 -> 2).
+  double get _position =>
+      _controller.hasClients && _controller.position.haveDimensions
+          ? _controller.page ?? _page.toDouble()
+          : _page.toDouble();
+
   @override
   Widget build(BuildContext context) {
     final count = widget.loans.length + 1;
-    final page = _page.clamp(0, count - 1);
 
-    return Column(
-      children: [
-        SizedBox(
-          height: 258,
-          child: PageView.builder(
-            controller: _controller,
-            itemCount: count,
-            onPageChanged: (i) => setState(() => _page = i),
-            itemBuilder: (context, i) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: i < widget.loans.length
-                  ? _LoanSlide(
-                      loan: widget.loans[i],
-                      hideAmounts: widget.hideAmounts,
-                      onOpen: () => widget.onOpen(widget.loans[i]),
-                    )
-                  : _NewLoanSlide(onOrder: widget.onOrder),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            for (var i = 0; i < count; i++)
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                width: i == page ? 18 : 7,
-                height: 7,
-                decoration: BoxDecoration(
-                  color: i == page ? AppColors.primary : const Color(0xFFCBD2DC),
-                  borderRadius: BorderRadius.circular(4),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) {
+          final pos = _position.clamp(0.0, (count - 1).toDouble());
+          final current = pos.round();
+          final nextIndex = current + 1 < count ? current + 1 : current;
+          final behind = Color.lerp(_colorAt(nextIndex), Colors.black, 0.10)!;
+
+          return Column(
+            children: [
+              SizedBox(
+                height: 258,
+                child: Stack(
+                  children: [
+                    // Edge of the next card, peeking behind (stays still).
+                    Positioned(
+                      top: 0,
+                      left: 16,
+                      right: 16,
+                      height: 30,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        decoration: BoxDecoration(
+                          color: behind,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                    Positioned.fill(
+                      top: 9,
+                      child: LayoutBuilder(
+                        builder: (context, box) => PageView.builder(
+                          controller: _controller,
+                          itemCount: count,
+                          onPageChanged: (i) => setState(() => _page = i),
+                          itemBuilder: (context, i) => _fade(
+                            index: i,
+                            pos: pos,
+                            width: box.maxWidth,
+                            child: i < widget.loans.length
+                                ? _LoanSlide(
+                                    loan: widget.loans[i],
+                                    hideAmounts: widget.hideAmounts,
+                                    onOpen: () => widget.onOpen(widget.loans[i]),
+                                  )
+                                : _NewLoanSlide(onOrder: widget.onOrder),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-          ],
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var i = 0; i < count; i++)
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: i == current ? 18 : 7,
+                      height: 7,
+                      decoration: BoxDecoration(
+                        color: i == current
+                            ? AppColors.primary
+                            : const Color(0xFFCBD2DC),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// Keeps every card in the same spot: the leaving card drifts a little,
+  /// shrinks and fades out while the next card fades in underneath.
+  Widget _fade({
+    required int index,
+    required double pos,
+    required double width,
+    required Widget child,
+  }) {
+    final delta = index - pos; // 0 = fully visible
+    final d = delta.abs().clamp(0.0, 1.0);
+    final opacity = (1 - d * 1.15).clamp(0.0, 1.0);
+    final scale = 1 - 0.06 * d;
+    // Cancel most of the page slide so cards cross-fade in place.
+    final dx = -delta * width * 0.88;
+
+    return Transform.translate(
+      offset: Offset(dx, 0),
+      child: Transform.scale(
+        scale: scale,
+        child: Opacity(
+          opacity: opacity,
+          child: IgnorePointer(ignoring: d > 0.5, child: child),
         ),
-      ],
+      ),
     );
   }
 }
 
-/// Card with a second card peeking behind it at the top.
-class _StackedCard extends StatelessWidget {
+/// Rounded tappable card surface.
+class _CardSurface extends StatelessWidget {
   final Color color;
   final VoidCallback? onTap;
   final Widget child;
 
-  const _StackedCard({required this.color, required this.child, this.onTap});
+  const _CardSurface({required this.color, required this.child, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final behind = Color.lerp(color, Colors.black, 0.10)!;
-    return Stack(
-      children: [
-        Positioned(
-          top: 0,
-          left: 16,
-          right: 16,
-          height: 30,
-          child: Container(
-            decoration: BoxDecoration(
-              color: behind,
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
+    return Material(
+      color: color,
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: child,
         ),
-        Positioned.fill(
-          top: 9,
-          child: Material(
-            color: color,
-            borderRadius: BorderRadius.circular(20),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: child,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -198,7 +253,7 @@ class _LoanSlide extends StatelessWidget {
     final inst = loan.firstUnpaid;
     final next = loan.nextInstallment();
 
-    return _StackedCard(
+    return _CardSurface(
       color: _slideColor(loan),
       onTap: onOpen,
       child: Column(
@@ -293,7 +348,7 @@ class _NewLoanSlide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _StackedCard(
+    return _CardSurface(
       color: Colors.white,
       onTap: onOrder,
       child: Column(
