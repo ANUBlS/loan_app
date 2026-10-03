@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/loan_repository.dart';
 import '../data/mock_data.dart';
 import '../i18n/l10n.dart';
-import '../services/auth_service.dart';
+import '../services/identity.dart';
 import '../theme.dart';
 import '../utils/format.dart';
 import '../utils/loan_math.dart';
@@ -18,7 +18,6 @@ class OrderLoanScreen extends StatefulWidget {
 }
 
 class _OrderLoanScreenState extends State<OrderLoanScreen> {
-  final _auth = AuthService();
   final _incomeCtrl = TextEditingController();
 
   late LoanProduct _product;
@@ -72,14 +71,10 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
     }
 
     setState(() => _busy = true);
-    final result = await _auth.authenticate(_l.t('auth.reason_apply'));
+    final ok = await confirmIdentity(context, _l.t('auth.reason_apply'));
     if (!mounted) return;
     setState(() => _busy = false);
-
-    if (!result.success) {
-      _snack(result.message ?? _l.t('order.err_confirm'));
-      return;
-    }
+    if (!ok) return;
 
     final app = LoanRepository.instance.submitApplication(
       product: _product,
@@ -253,7 +248,7 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
           const SizedBox(height: 8),
           FilledButton.icon(
             onPressed: _agreed && !_busy ? _submit : null,
-            icon: const Icon(Icons.fingerprint),
+            icon: const Icon(Icons.lock_outline),
             label: Text(context.tr(_busy ? 'order.waiting' : 'order.submit')),
           ),
           const SizedBox(height: 8),

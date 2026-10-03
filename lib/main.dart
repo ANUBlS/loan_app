@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'i18n/l10n.dart';
+import 'screens/home_screen.dart';
 import 'screens/lock_screen.dart';
+import 'screens/pin_setup_screen.dart';
 import 'screens/register_screen.dart';
 import 'services/auth_service.dart';
 import 'theme.dart';
@@ -47,7 +49,10 @@ class LoanApp extends StatelessWidget {
   }
 }
 
-/// First launch -> Register. Afterwards -> biometric Lock screen.
+enum _Start { register, createPin, lock }
+
+/// First launch -> Register. Registered without a passcode (older version)
+/// -> create one. Otherwise -> Lock screen (passcode / biometrics).
 class StartupGate extends StatefulWidget {
   const StartupGate({super.key});
 
@@ -57,18 +62,41 @@ class StartupGate extends StatefulWidget {
 
 class _StartupGateState extends State<StartupGate> {
   // Show the splash for at least 900 ms.
-  late final Future<bool> _registered = Future.wait<Object?>([
-    AuthService().isRegistered(),
+  late final Future<_Start> _start = Future.wait<Object?>([
+    _resolve(),
     Future<void>.delayed(const Duration(milliseconds: 900)),
-  ]).then((r) => r.first as bool);
+  ]).then((r) => r.first as _Start);
+
+  static Future<_Start> _resolve() async {
+    final auth = AuthService();
+    if (!await auth.isRegistered()) return _Start.register;
+    if (!await auth.hasPin()) return _Start.createPin;
+    return _Start.lock;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: _registered,
+    return FutureBuilder<_Start>(
+      future: _start,
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SplashView();
-        return snapshot.data! ? const LockScreen() : const RegisterScreen();
+        return switch (snapshot.data!) {
+          _Start.register => const RegisterScreen(),
+          _Start.lock => const LockScreen(),
+          _Start.createPin => PinSetupScreen(
+              canGoBack: false,
+              onDone: (pin) async {
+                final auth = AuthService();
+                await auth.setPin(pin);
+                // Users of the old version already used biometrics.
+                await auth.setBiometricEnabled(true);
+                if (!context.mounted) return;
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                );
+              },
+            ),
+        };
       },
     );
   }

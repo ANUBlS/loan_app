@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:loan_app/services/auth_service.dart';
 import 'package:loan_app/utils/loan_math.dart';
 
 void main() {
@@ -17,5 +18,12 @@ void main() {
     expect(round2(principal), 5000);
     expect(schedule.last.balanceAfter, 0);
     expect(schedule[0].dueDate, DateTime(2025, 2, 28));
+  });
+
+  test('weak passcodes are rejected', () {
+    expect(AuthService.isWeakPin('111111'), isTrue);
+    expect(AuthService.isWeakPin('123456'), isTrue);
+    expect(AuthService.isWeakPin('654321'), isTrue);
+    expect(AuthService.isWeakPin('482915'), isFalse);
   });
 }

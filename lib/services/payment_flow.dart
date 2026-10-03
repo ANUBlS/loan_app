@@ -4,9 +4,9 @@ import '../data/loan_repository.dart';
 import '../i18n/l10n.dart';
 import '../models/loan.dart';
 import '../utils/format.dart';
-import 'auth_service.dart';
+import 'identity.dart';
 
-/// Confirm -> biometrics -> mark the earliest unpaid installment as paid.
+/// Confirm -> biometrics or passcode -> mark the earliest unpaid installment as paid.
 /// Used by the home carousel and the loan screen.
 Future<bool> payNextInstallment(BuildContext context, Loan loan) async {
   final inst = loan.firstUnpaid;
@@ -37,16 +37,10 @@ Future<bool> payNextInstallment(BuildContext context, Loan loan) async {
   );
   if (confirmed != true || !context.mounted) return false;
 
-  final result = await AuthService().authenticate(l.t('pay.reason'));
-  if (!context.mounted) return false;
+  final ok = await confirmIdentity(context, l.t('pay.reason'));
+  if (!ok || !context.mounted) return false;
   final messenger = ScaffoldMessenger.of(context);
 
-  if (!result.success) {
-    messenger.showSnackBar(
-      SnackBar(content: Text(result.message ?? l.t('order.err_confirm'))),
-    );
-    return false;
-  }
   LoanRepository.instance.payNext(loan.id);
   messenger.showSnackBar(
     SnackBar(content: Text(l.t('pay.success', {'amount': amount}))),

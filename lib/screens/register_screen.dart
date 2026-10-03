@@ -4,8 +4,11 @@ import '../i18n/l10n.dart';
 import '../services/auth_service.dart';
 import '../theme.dart';
 import '../widgets/profile_menu.dart';
+import 'biometric_offer_screen.dart';
 import 'home_screen.dart';
+import 'pin_setup_screen.dart';
 
+/// Name + phone -> create passcode -> (optional) enable biometrics.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -18,7 +21,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController(text: '+994 ');
   final _auth = AuthService();
-  bool _busy = false;
 
   @override
   void dispose() {
@@ -27,40 +29,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  Future<void> _register() async {
+  void _continue() {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    setState(() => _busy = true);
+    final name = _nameCtrl.text.trim();
+    final phone = _phoneCtrl.text.trim();
 
-    final available = await _auth.checkAvailability();
-    if (!available.success) {
-      _fail(available.message);
-      return;
-    }
-
-    final result =
-        await _auth.authenticate(L10n.instance.t('auth.reason_register'));
-    if (!result.success) {
-      _fail(result.message);
-      return;
-    }
-
-    await _auth.register(
-      name: _nameCtrl.text.trim(),
-      phone: _phoneCtrl.text.trim(),
-    );
-    if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
-  }
-
-  void _fail(String? message) {
-    if (!mounted) return;
-    setState(() => _busy = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message ?? L10n.instance.t('common.error_generic')),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PinSetupScreen(
+          onDone: (pin) async {
+            await _auth.setPin(pin);
+            await _auth.register(name: name, phone: phone);
+            final hasBiometrics = (await _auth.checkAvailability()).success;
+            if (!mounted) return;
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => hasBiometrics
+                    ? const BiometricOfferScreen()
+                    : const HomeScreen(),
+              ),
+              (_) => false,
+            );
+          },
+        ),
       ),
     );
   }
@@ -147,17 +139,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 32),
                 FilledButton.icon(
-                  onPressed: _busy ? null : _register,
-                  icon: _busy
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.fingerprint),
-                  label: Text(
-                    context.tr(_busy ? 'register.waiting' : 'register.button'),
-                  ),
+                  onPressed: _continue,
+                  icon: const Icon(Icons.arrow_forward),
+                  label: Text(context.tr('register.continue')),
                 ),
                 const SizedBox(height: 16),
                 Row(

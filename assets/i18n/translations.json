@@ -73,6 +73,26 @@
       "az": "Kreditlərinizi görmək üçün kilidi açın",
       "ru": "Разблокируйте, чтобы увидеть свои кредиты"
     },
+    "bio.enable": {
+      "en": "Enable",
+      "az": "Aktivləşdir",
+      "ru": "Включить"
+    },
+    "bio.not_now": {
+      "en": "Not now",
+      "az": "İndi yox",
+      "ru": "Не сейчас"
+    },
+    "bio.offer_body": {
+      "en": "Open the app and confirm payments faster. You can change this later in More.",
+      "az": "Tətbiqi daha tez açın və ödənişləri təsdiqləyin. Bunu sonra “Daha çox” bölməsində dəyişə bilərsiniz.",
+      "ru": "Открывайте приложение и подтверждайте платежи быстрее. Это можно изменить позже в разделе «Ещё»."
+    },
+    "bio.offer_title": {
+      "en": "Use fingerprint or Face ID?",
+      "az": "Barmaq izi və ya Face ID istifadə edilsin?",
+      "ru": "Использовать отпечаток или Face ID?"
+    },
     "card.fully_repaid": {
       "en": "Fully repaid",
       "az": "Tam ödənilib",
@@ -409,60 +429,30 @@
       "az": "Baxılır",
       "ru": "На рассмотрении"
     },
-    "lock.checking": {
-      "en": "Checking…",
-      "az": "Yoxlanılır…",
-      "ru": "Проверка…"
-    },
     "lock.greeting": {
       "en": "Welcome back",
-      "az": "Xoş gəlmisiniz",
+      "az": "Xoş gəldiniz",
       "ru": "С возвращением"
     },
     "lock.greeting_name": {
-      "en": "Welcome back, {name}",
-      "az": "Xoş gəlmisiniz, {name}",
-      "ru": "С возвращением, {name}"
+      "en": "Welcome back, {name}!",
+      "az": "Xoş gəldiniz, {name}!",
+      "ru": "С возвращением, {name}!"
     },
     "lock.hint": {
-      "en": "Touch the sensor or look at your phone to unlock.",
-      "az": "Kilidi açmaq üçün sensora toxunun və ya telefona baxın.",
-      "ru": "Коснитесь сканера или посмотрите на телефон, чтобы разблокировать."
-    },
-    "lock.not_you": {
-      "en": "Not you? Register a new user",
-      "az": "Siz deyilsiniz? Yeni istifadəçi qeydiyyatı",
-      "ru": "Это не вы? Зарегистрировать нового пользователя"
-    },
-    "lock.reset_body": {
-      "en": "This removes the current user from this device. You will need to register and scan biometrics again.",
-      "az": "Cari istifadəçi bu cihazdan silinəcək. Yenidən qeydiyyatdan keçib biometrik yoxlamadan keçməli olacaqsınız.",
-      "ru": "Текущий пользователь будет удалён с этого устройства. Потребуется снова зарегистрироваться и пройти биометрию."
-    },
-    "lock.reset_confirm": {
-      "en": "Remove user",
-      "az": "İstifadəçini sil",
-      "ru": "Удалить пользователя"
-    },
-    "lock.reset_title": {
-      "en": "Register a new user?",
-      "az": "Yeni istifadəçi qeydiyyatdan keçirilsin?",
-      "ru": "Зарегистрировать нового пользователя?"
-    },
-    "lock.retry": {
-      "en": "Tap the fingerprint to try again",
-      "az": "Yenidən cəhd etmək üçün barmaq izi işarəsinə toxunun",
-      "ru": "Нажмите на отпечаток, чтобы повторить"
+      "en": "Enter your passcode",
+      "az": "Şifrənizi daxil edin",
+      "ru": "Введите код-пароль"
     },
     "more.biometric": {
       "en": "Biometric login",
       "az": "Biometrik giriş",
       "ru": "Биометрический вход"
     },
-    "more.biometric_on": {
-      "en": "On",
-      "az": "Aktivdir",
-      "ru": "Включён"
+    "more.change_pin": {
+      "en": "Change passcode",
+      "az": "Şifrəni dəyiş",
+      "ru": "Изменить код-пароль"
     },
     "more.title": {
       "en": "More",
@@ -525,14 +515,9 @@
       "ru": "Сумма"
     },
     "order.biometric_note": {
-      "en": "You confirm the application with your fingerprint or face.",
-      "az": "Müraciəti barmaq iziniz və ya üzünüzlə təsdiqləyirsiniz.",
-      "ru": "Заявка подтверждается отпечатком пальца или лицом."
-    },
-    "order.err_confirm": {
-      "en": "Confirmation failed.",
-      "az": "Təsdiq alınmadı.",
-      "ru": "Подтверждение не удалось."
+      "en": "You confirm the application with your passcode or biometrics.",
+      "az": "Müraciəti şifrə və ya biometrik məlumatla təsdiqləyirsiniz.",
+      "ru": "Заявка подтверждается код-паролем или биометрией."
     },
     "order.err_income": {
       "en": "Enter your monthly net income.",
@@ -605,9 +590,9 @@
       "ru": "Вид кредита"
     },
     "order.waiting": {
-      "en": "Waiting for biometrics…",
-      "az": "Biometrik yoxlama gözlənilir…",
-      "ru": "Ожидание биометрии…"
+      "en": "Confirming…",
+      "az": "Təsdiqlənir…",
+      "ru": "Подтверждение…"
     },
     "pay.confirm_body": {
       "en": "Pay {amount} for payment #{n} of {loan}?",
@@ -628,6 +613,84 @@
       "en": "Payment of {amount} completed.",
       "az": "{amount} məbləğində ödəniş edildi.",
       "ru": "Платёж на {amount} выполнен."
+    },
+    "pin.changed": {
+      "en": "Passcode changed.",
+      "az": "Şifrə dəyişdirildi.",
+      "ru": "Код-пароль изменён."
+    },
+    "pin.create_hint": {
+      "en": "6 digits to open the app and confirm payments",
+      "az": "Tətbiqə giriş və ödənişlərin təsdiqi üçün 6 rəqəm",
+      "ru": "6 цифр для входа в приложение и подтверждения платежей"
+    },
+    "pin.create_title": {
+      "en": "Create a passcode",
+      "az": "Şifrə yaradın",
+      "ru": "Придумайте код-пароль"
+    },
+    "pin.current_title": {
+      "en": "Enter current passcode",
+      "az": "Cari şifrəni daxil edin",
+      "ru": "Введите текущий код-пароль"
+    },
+    "pin.enter_title": {
+      "en": "Enter passcode",
+      "az": "Şifrəni daxil edin",
+      "ru": "Введите код-пароль"
+    },
+    "pin.forgot": {
+      "en": "Forgot passcode?",
+      "az": "Şifrəni unutmusunuz?",
+      "ru": "Забыли код-пароль?"
+    },
+    "pin.forgot_body": {
+      "en": "For security you will be signed out and need to register again on this device.",
+      "az": "Təhlükəsizlik üçün hesabdan çıxılacaq və bu cihazda yenidən qeydiyyatdan keçməli olacaqsınız.",
+      "ru": "В целях безопасности вы выйдете из аккаунта и нужно будет заново зарегистрироваться на этом устройстве."
+    },
+    "pin.forgot_confirm": {
+      "en": "Reset",
+      "az": "Sıfırla",
+      "ru": "Сбросить"
+    },
+    "pin.forgot_title": {
+      "en": "Reset passcode?",
+      "az": "Şifrə sıfırlansın?",
+      "ru": "Сбросить код-пароль?"
+    },
+    "pin.locked": {
+      "en": "Too many attempts. Try again in {n} s.",
+      "az": "Çox sayda cəhd. {n} saniyə sonra yenidən cəhd edin.",
+      "ru": "Слишком много попыток. Повторите через {n} сек."
+    },
+    "pin.mismatch": {
+      "en": "Passcodes do not match. Try again.",
+      "az": "Şifrələr uyğun gəlmir. Yenidən cəhd edin.",
+      "ru": "Код-пароли не совпадают. Попробуйте снова."
+    },
+    "pin.repeat_title": {
+      "en": "Repeat the passcode",
+      "az": "Şifrəni təkrarlayın",
+      "ru": "Повторите код-пароль"
+    },
+    "pin.too_simple": {
+      "en": "Too simple. Avoid codes like 111111 or 123456.",
+      "az": "Çox sadədir. 111111 və ya 123456 kimi şifrələrdən istifadə etməyin.",
+      "ru": "Слишком простой. Не используйте 111111 или 123456."
+    },
+    "pin.wrong": {
+      "en": {
+        "one": "Wrong passcode. {n} attempt left.",
+        "other": "Wrong passcode. {n} attempts left."
+      },
+      "az": "Yanlış şifrə. {n} cəhd qalıb.",
+      "ru": {
+        "one": "Неверный код-пароль. Осталась {n} попытка.",
+        "few": "Неверный код-пароль. Осталось {n} попытки.",
+        "many": "Неверный код-пароль. Осталось {n} попыток.",
+        "other": "Неверный код-пароль. Осталось {n} попытки."
+      }
     },
     "product.business": {
       "en": "Business",
@@ -690,9 +753,9 @@
       "ru": "Выйти"
     },
     "profile.sign_out_body": {
-      "en": "The user is removed from this device. You will register and scan biometrics again. Your language choice is kept.",
-      "az": "İstifadəçi bu cihazdan silinəcək. Yenidən qeydiyyatdan keçib biometrik yoxlamadan keçəcəksiniz. Seçdiyiniz dil saxlanılır.",
-      "ru": "Пользователь будет удалён с этого устройства. Нужно будет снова зарегистрироваться и пройти биометрию. Выбранный язык сохранится."
+      "en": "The user is removed from this device. You will register and create a passcode again. Your language choice is kept.",
+      "az": "İstifadəçi bu cihazdan silinəcək. Yenidən qeydiyyatdan keçib şifrə yaradacaqsınız. Seçdiyiniz dil saxlanılır.",
+      "ru": "Пользователь будет удалён с этого устройства. Нужно будет снова зарегистрироваться и создать код-пароль. Выбранный язык сохранится."
     },
     "profile.sign_out_title": {
       "en": "Sign out?",
@@ -729,10 +792,10 @@
       "az": "Təmir",
       "ru": "Ремонт"
     },
-    "register.button": {
-      "en": "Register with biometrics",
-      "az": "Biometrika ilə qeydiyyatdan keçin",
-      "ru": "Зарегистрироваться с биометрией"
+    "register.continue": {
+      "en": "Continue",
+      "az": "Davam et",
+      "ru": "Продолжить"
     },
     "register.name": {
       "en": "Full name",
@@ -755,24 +818,19 @@
       "ru": "Введите номер в формате +994 50 123 45 67"
     },
     "register.privacy": {
-      "en": "Biometric data never leaves your device.",
-      "az": "Biometrik məlumatlar cihazınızdan kənara çıxmır.",
-      "ru": "Биометрические данные не покидают ваше устройство."
+      "en": "Your passcode is stored on this device in protected form.",
+      "az": "Şifrəniz bu cihazda qorunan formada saxlanılır.",
+      "ru": "Код-пароль хранится на этом устройстве в защищённом виде."
     },
     "register.subtitle": {
-      "en": "Your loans are protected by your fingerprint or face. You confirm it once now and every time you open the app.",
-      "az": "Kreditləriniz barmaq iziniz və ya üzünüzlə qorunur. Bunu indi bir dəfə və tətbiqi hər açanda təsdiqləyəcəksiniz.",
-      "ru": "Ваши кредиты защищены отпечатком пальца или лицом. Подтвердите биометрию сейчас и при каждом открытии приложения."
+      "en": "Your loans are protected by a 6-digit passcode. You can also unlock with fingerprint or Face ID.",
+      "az": "Kreditləriniz 6 rəqəmli şifrə ilə qorunur. Kilidi barmaq izi və ya Face ID ilə də aça bilərsiniz.",
+      "ru": "Ваши кредиты защищены 6-значным код-паролем. Также можно входить по отпечатку пальца или Face ID."
     },
     "register.title": {
       "en": "Create your account",
       "az": "Hesab yaradın",
       "ru": "Создайте аккаунт"
-    },
-    "register.waiting": {
-      "en": "Waiting for biometrics…",
-      "az": "Biometrik yoxlama gözlənilir…",
-      "ru": "Ожидание биометрии…"
     },
     "schedule.account": {
       "en": "Contract number",
