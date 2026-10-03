@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/api_client.dart';
 import '../data/loan_repository.dart';
 import '../i18n/l10n.dart';
 import '../models/loan.dart';
@@ -9,8 +10,10 @@ import '../utils/format.dart';
 import '../widgets/loan_carousel.dart';
 import '../widgets/loan_widgets.dart';
 import '../widgets/profile_menu.dart';
+import '../widgets/server_dialog.dart';
 import 'all_loans_screen.dart';
 import 'loan_detail_screen.dart';
+import 'register_screen.dart';
 import 'schedule_screen.dart';
 
 /// Home tab: greeting, quick actions, swipeable loan cards, summary.
@@ -169,197 +172,214 @@ class _LoansScreenState extends State<LoansScreen> {
             final hasAlerts = _alerts(context).isNotEmpty;
             final firstName = _name.trim().split(' ').first;
 
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
-              children: [
-                // Header: avatar, greeting, eye, bell
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      const ProfileAvatarButton(),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          firstName.isEmpty
-                              ? context.tr('home.greeting_plain')
-                              : context.tr('home.greeting', {'name': firstName}),
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.ink,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => setState(() => _hidden = !_hidden),
-                        icon: Icon(
-                          _hidden
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: AppColors.ink,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: _showNotifications,
-                        icon: Badge(
-                          isLabelVisible: hasAlerts,
-                          smallSize: 9,
-                          child: const Icon(
-                            Icons.notifications_none,
-                            color: AppColors.ink,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Quick actions
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _tile(Icons.add_card, AppColors.primary,
-                          context.tr('home.action_order'), widget.onOrderLoan),
-                      _tile(Icons.calendar_month, const Color(0xFF7C3AED),
-                          context.tr('home.action_schedule'),
-                          _openUrgentSchedule),
-                      _tile(Icons.description, const Color(0xFF0EA5E9),
-                          context.tr('home.action_docs'),
-                          () => widget.onOpenTab(2)),
-                      _tile(Icons.translate, const Color(0xFFF97316),
-                          context.tr('home.action_language'),
-                          () => showLanguagePicker(context)),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-
-                // Swipeable loan cards (edge to edge, like the video)
-                LoanCarousel(
-                  loans: loans,
-                  hideAmounts: _hidden,
-                  onOpen: _openLoan,
-                  onOrder: widget.onOrderLoan,
-                ),
-                const SizedBox(height: 14),
-
-                // "All my loans" pill
-                Center(
-                  child: Material(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(22),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(22),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const AllLoansScreen(),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 10),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              context.tr('loans.all_button'),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.ink,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Icon(Icons.arrow_forward,
-                                size: 18, color: AppColors.ink),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-
-                // Compact summary
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: WhiteCard(
-                    padding: const EdgeInsets.all(16),
+            return RefreshIndicator(
+              onRefresh: _repo.refresh,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
+                children: [
+                  // Header: avatar, greeting, eye, bell
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       children: [
+                        const ProfileAvatarButton(),
+                        const SizedBox(width: 10),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Text(
+                            firstName.isEmpty
+                                ? context.tr('home.greeting_plain')
+                                : context.tr('home.greeting', {'name': firstName}),
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => setState(() => _hidden = !_hidden),
+                          icon: Icon(
+                            _hidden
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: AppColors.ink,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _showNotifications,
+                          icon: Badge(
+                            isLabelVisible: hasAlerts,
+                            smallSize: 9,
+                            child: const Icon(
+                              Icons.notifications_none,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Loading / connection problems
+                  if (_repo.isLoading && !_repo.hasData)
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      child: LinearProgressIndicator(),
+                    ),
+                  if (_repo.error != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      child: _ErrorCard(error: _repo.error!),
+                    ),
+                  const SizedBox(height: 4),
+
+                  // Quick actions
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _tile(Icons.add_card, AppColors.primary,
+                            context.tr('home.action_order'), widget.onOrderLoan),
+                        _tile(Icons.calendar_month, const Color(0xFF7C3AED),
+                            context.tr('home.action_schedule'),
+                            _openUrgentSchedule),
+                        _tile(Icons.description, const Color(0xFF0EA5E9),
+                            context.tr('home.action_docs'),
+                            () => widget.onOpenTab(2)),
+                        _tile(Icons.translate, const Color(0xFFF97316),
+                            context.tr('home.action_language'),
+                            () => showLanguagePicker(context)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+
+                  // Swipeable loan cards (edge to edge, like the video)
+                  LoanCarousel(
+                    loans: loans,
+                    hideAmounts: _hidden,
+                    onOpen: _openLoan,
+                    onOrder: widget.onOrderLoan,
+                  ),
+                  const SizedBox(height: 14),
+
+                  // "All my loans" pill
+                  Center(
+                    child: Material(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(22),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const AllLoansScreen(),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 18, vertical: 10),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                context.tr('loans.total_outstanding'),
+                                context.tr('loans.all_button'),
                                 style: const TextStyle(
-                                    fontSize: 13, color: AppColors.muted),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                _money(outstanding),
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w600,
                                   color: AppColors.ink,
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                context.tr('home.open_count',
-                                    {'n': open.length}),
-                                style: const TextStyle(
-                                    fontSize: 13, color: AppColors.muted),
-                              ),
+                              const SizedBox(width: 6),
+                              const Icon(Icons.arrow_forward,
+                                  size: 18, color: AppColors.ink),
                             ],
                           ),
                         ),
-                        if (overdue > 0)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                context.tr('state.overdue'),
-                                style: const TextStyle(
-                                    fontSize: 13, color: AppColors.overdue),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                _money(overdue),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.overdue,
-                                ),
-                              ),
-                            ],
-                          ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 18),
 
-                if (applications.isNotEmpty)
+                  // Compact summary
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SectionTitle(context.tr('loans.applications')),
-                        for (final a in applications)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: _ApplicationTile(application: a),
+                    child: WhiteCard(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  context.tr('loans.total_outstanding'),
+                                  style: const TextStyle(
+                                      fontSize: 13, color: AppColors.muted),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _money(outstanding),
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.ink,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  context.tr('home.open_count',
+                                      {'n': open.length}),
+                                  style: const TextStyle(
+                                      fontSize: 13, color: AppColors.muted),
+                                ),
+                              ],
+                            ),
                           ),
-                      ],
+                          if (overdue > 0)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  context.tr('state.overdue'),
+                                  style: const TextStyle(
+                                      fontSize: 13, color: AppColors.overdue),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _money(overdue),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.overdue,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
                     ),
                   ),
-              ],
+
+                  if (applications.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SectionTitle(context.tr('loans.applications')),
+                          for (final a in applications)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: _ApplicationTile(application: a),
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             );
           },
         ),
@@ -435,10 +455,79 @@ class _ApplicationTile extends StatelessWidget {
               ],
             ),
           ),
-          Pill(
-            text: context.tr('loans.under_review'),
-            color: AppColors.next,
-            background: AppColors.nextBg,
+          application.status == 'rejected'
+              ? Pill(
+                  text: context.tr('loans.rejected'),
+                  color: AppColors.overdue,
+                  background: AppColors.overdueBg,
+                )
+              : Pill(
+                  text: context.tr('loans.under_review'),
+                  color: AppColors.next,
+                  background: AppColors.nextBg,
+                ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shown on Home when the server could not be reached or the session ended.
+class _ErrorCard extends StatelessWidget {
+  final ApiException error;
+  const _ErrorCard({required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    final repo = LoanRepository.instance;
+    return WhiteCard(
+      padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                error.isNetwork ? Icons.cloud_off_outlined : Icons.error_outline,
+                color: AppColors.overdue,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  error.userMessage,
+                  style: const TextStyle(color: AppColors.ink),
+                ),
+              ),
+            ],
+          ),
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: 4,
+            children: [
+              if (error.isSessionExpired)
+                TextButton(
+                  onPressed: () => AuthService().signOut().then((_) {
+                    if (!context.mounted) return;
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                      (_) => false,
+                    );
+                  }),
+                  child: Text(context.tr('home.sign_in_again')),
+                )
+              else ...[
+                if (error.isNetwork)
+                  TextButton(
+                    onPressed: () => showServerDialog(context),
+                    child: Text(context.tr('server.title')),
+                  ),
+                TextButton(
+                  onPressed: repo.isLoading ? null : repo.refresh,
+                  child: Text(context.tr('common.retry')),
+                ),
+              ],
+            ],
           ),
         ],
       ),

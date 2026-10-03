@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../data/api_client.dart';
 import '../i18n/l10n.dart';
 import '../services/auth_service.dart';
 import '../theme.dart';
 import '../widgets/loan_widgets.dart';
 import '../widgets/pin_pad.dart';
 import '../widgets/profile_menu.dart';
+import '../widgets/server_dialog.dart';
 import 'pin_setup_screen.dart';
 
 /// Profile and settings: language, biometrics, passcode, sign out.
@@ -165,10 +167,26 @@ class _MoreScreenState extends State<MoreScreen> {
                 const Divider(height: 1, indent: 56),
                 ListTile(
                   leading:
+                      const Icon(Icons.dns_outlined, color: AppColors.primary),
+                  title: Text(context.tr('server.title')),
+                  subtitle: Text(
+                    ApiClient.instance.baseUrl,
+                    style: const TextStyle(color: AppColors.muted),
+                  ),
+                  trailing:
+                      const Icon(Icons.chevron_right, color: AppColors.muted),
+                  onTap: () async {
+                    await showServerDialog(context);
+                    if (mounted) setState(() {});
+                  },
+                ),
+                const Divider(height: 1, indent: 56),
+                ListTile(
+                  leading:
                       const Icon(Icons.info_outline, color: AppColors.primary),
                   title: Text(context.tr('more.version')),
                   trailing: const Text(
-                    '1.3.0',
+                    '1.4.0',
                     style: TextStyle(color: AppColors.muted),
                   ),
                 ),

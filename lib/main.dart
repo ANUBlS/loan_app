@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'data/api_client.dart';
 import 'i18n/l10n.dart';
 import 'screens/home_screen.dart';
 import 'screens/lock_screen.dart';
@@ -14,6 +15,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await L10n.instance.load();
+  await ApiClient.instance.load();
   runApp(const LoanApp());
 }
 
@@ -51,8 +53,9 @@ class LoanApp extends StatelessWidget {
 
 enum _Start { register, createPin, lock }
 
-/// First launch -> Register. Registered without a passcode (older version)
-/// -> create one. Otherwise -> Lock screen (passcode / biometrics).
+/// First launch, or no server session yet -> Register (SMS code).
+/// Registered without a passcode (older version) -> create one.
+/// Otherwise -> Lock screen (passcode / biometrics).
 class StartupGate extends StatefulWidget {
   const StartupGate({super.key});
 
@@ -69,7 +72,9 @@ class _StartupGateState extends State<StartupGate> {
 
   static Future<_Start> _resolve() async {
     final auth = AuthService();
-    if (!await auth.isRegistered()) return _Start.register;
+    if (!await auth.isRegistered() || !await ApiClient.instance.hasSession()) {
+      return _Start.register;
+    }
     if (!await auth.hasPin()) return _Start.createPin;
     return _Start.lock;
   }

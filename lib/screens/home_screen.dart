@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/loan_repository.dart';
 import '../i18n/l10n.dart';
 import '../theme.dart';
 import 'documents_screen.dart';
@@ -27,6 +28,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // After the first frame: refresh() notifies listeners right away.
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => LoanRepository.instance.refresh());
   }
 
   @override
@@ -48,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           DateTime.now().difference(pausedAt) >= _relockAfter) {
         _relock();
       }
+      LoanRepository.instance.refresh();
     }
   }
 

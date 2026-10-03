@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../data/api_client.dart';
 import '../data/loan_repository.dart';
 import '../i18n/l10n.dart';
 import '../models/loan.dart';
 import '../utils/format.dart';
 import 'identity.dart';
 
-/// Confirm -> biometrics or passcode -> mark the earliest unpaid installment as paid.
+/// Confirm -> biometrics or passcode -> POST /loans/{id}/payments
+/// (pays the earliest unpaid installment on the server).
 /// Used by the home carousel and the loan screen.
 Future<bool> payNextInstallment(BuildContext context, Loan loan) async {
   final inst = loan.firstUnpaid;
@@ -41,7 +43,12 @@ Future<bool> payNextInstallment(BuildContext context, Loan loan) async {
   if (!ok || !context.mounted) return false;
   final messenger = ScaffoldMessenger.of(context);
 
-  LoanRepository.instance.payNext(loan.id);
+  try {
+    await LoanRepository.instance.payNext(loan.id);
+  } on ApiException catch (e) {
+    messenger.showSnackBar(SnackBar(content: Text(e.userMessage)));
+    return false;
+  }
   messenger.showSnackBar(
     SnackBar(content: Text(l.t('pay.success', {'amount': amount}))),
   );

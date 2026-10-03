@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../data/api_client.dart';
 import '../i18n/l10n.dart';
 import '../services/auth_service.dart';
 import '../theme.dart';
 import '../widgets/profile_menu.dart';
-import 'biometric_offer_screen.dart';
-import 'home_screen.dart';
-import 'pin_setup_screen.dart';
+import '../widgets/server_dialog.dart';
+import 'otp_screen.dart';
 
-/// Name + phone -> create passcode -> (optional) enable biometrics.
+/// Name + phone -> SMS code -> create passcode -> (optional) biometrics.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -21,6 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController(text: '+994 ');
   final _auth = AuthService();
+  bool _sending = false;
 
   @override
   void dispose() {
@@ -29,32 +30,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _continue() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _continue() async {
+    if (_sending || !_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
     final name = _nameCtrl.text.trim();
     final phone = _phoneCtrl.text.trim();
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => PinSetupScreen(
-          onDone: (pin) async {
-            await _auth.setPin(pin);
-            await _auth.register(name: name, phone: phone);
-            final hasBiometrics = (await _auth.checkAvailability()).success;
-            if (!mounted) return;
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (_) => hasBiometrics
-                    ? const BiometricOfferScreen()
-                    : const HomeScreen(),
-              ),
-              (_) => false,
-            );
-          },
+    setState(() => _sending = true);
+    try {
+      final request = await _auth.requestCode(phone);
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => OtpScreen(name: name, request: request),
         ),
-      ),
-    );
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.userMessage),
+          action: e.isNetwork
+              ? SnackBarAction(
+                  label: L10n.instance.t('server.title'),
+                  onPressed: () => showServerDialog(context),
+                )
+              : null,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
   }
 
   @override
@@ -84,6 +90,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const Spacer(),
+                    IconButton(
+                      tooltip: context.tr('server.title'),
+                      onPressed: () => showServerDialog(context),
+                      icon: const Icon(Icons.dns_outlined),
+                    ),
                     TextButton.icon(
                       onPressed: () => showLanguagePicker(context),
                       icon: const Icon(Icons.language),
@@ -139,9 +150,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 32),
                 FilledButton.icon(
-                  onPressed: _continue,
-                  icon: const Icon(Icons.arrow_forward),
-                  label: Text(context.tr('register.continue')),
+                  onPressed: _sending ? null : _continue,
+                  icon: _sending
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.arrow_forward),
+                  label: Text(context.tr(
+                      _sending ? 'register.sending' : 'register.continue')),
                 ),
                 const SizedBox(height: 16),
                 Row(

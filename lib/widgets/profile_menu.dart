@@ -211,7 +211,7 @@ Future<void> confirmSignOut(BuildContext context) async {
     ),
   );
   if (confirmed != true) return;
-  await AuthService().reset();
+  await AuthService().signOut();
   if (!context.mounted) return;
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute(builder: (_) => const RegisterScreen()),

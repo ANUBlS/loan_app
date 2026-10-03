@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../data/api_client.dart';
 import '../data/loan_repository.dart';
 import '../data/mock_data.dart';
+import '../models/loan.dart';
 import '../i18n/l10n.dart';
 import '../services/identity.dart';
 import '../theme.dart';
@@ -20,10 +22,11 @@ class OrderLoanScreen extends StatefulWidget {
 class _OrderLoanScreenState extends State<OrderLoanScreen> {
   final _incomeCtrl = TextEditingController();
 
+  final _repo = LoanRepository.instance;
   late LoanProduct _product;
   late double _amount;
   late int _term;
-  String _purpose = MockData.purposes.first;
+  late String _purpose;
   bool _agreed = false;
   bool _busy = false;
 
@@ -32,7 +35,31 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
   @override
   void initState() {
     super.initState();
-    _applyProduct(MockData.products.first, initial: true);
+    _purpose = _repo.purposes.first;
+    _applyProduct(_repo.products.first, initial: true);
+    if (!_repo.catalogLoaded) _loadCatalog();
+  }
+
+  /// Products, rates and limits come from GET /catalog.
+  Future<void> _loadCatalog() async {
+    try {
+      await _repo.loadCatalog();
+    } on ApiException catch (e) {
+      if (mounted) _snack(e.userMessage);
+      return;
+    } catch (_) {
+      return;
+    }
+    if (!mounted) return;
+    setState(() {
+      final same = _repo.products.where((p) => p.name == _product.name);
+      _product = same.isEmpty ? _repo.products.first : same.first;
+      _amount = ((_amount / _product.step).round() * _product.step)
+          .clamp(_product.minAmount, _product.maxAmount)
+          .toDouble();
+      _term = _term.clamp(_product.minTerm, _product.maxTerm).toInt();
+      if (!_repo.purposes.contains(_purpose)) _purpose = _repo.purposes.first;
+    });
   }
 
   @override
@@ -70,18 +97,37 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
       return;
     }
 
+    if (_product.id == 0) {
+      // Catalog not loaded yet: the server needs real product ids.
+      await _loadCatalog();
+      if (!mounted || _product.id == 0) return;
+    }
+
     setState(() => _busy = true);
     final ok = await confirmIdentity(context, _l.t('auth.reason_apply'));
     if (!mounted) return;
-    setState(() => _busy = false);
-    if (!ok) return;
+    if (!ok) {
+      setState(() => _busy = false);
+      return;
+    }
 
-    final app = LoanRepository.instance.submitApplication(
-      product: _product,
-      amount: _amount,
-      termMonths: _term,
-      purpose: _purpose,
-    );
+    LoanApplication? app;
+    try {
+      app = await _repo.submitApplication(
+        product: _product,
+        amount: _amount,
+        termMonths: _term,
+        purpose: _purpose,
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      _snack(e.userMessage);
+      return;
+    }
+    if (!mounted || app == null) return;
+    setState(() => _busy = false);
+    final sent = app;
 
     await showDialog<void>(
       context: context,
@@ -90,11 +136,11 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
         title: Text(ctx.tr('order.sent_title')),
         content: Text(
           ctx.tr('order.sent_body', {
-            'product': ctx.tr(app.productName),
-            'amount': formatMoney(app.amount, app.currency),
-            'term': formatTerm(app.termMonths),
-            'monthly': formatMoney(app.monthlyPayment, app.currency),
-            'id': app.id,
+            'product': ctx.tr(sent.productName),
+            'amount': formatMoney(sent.amount, sent.currency),
+            'term': formatTerm(sent.termMonths),
+            'monthly': formatMoney(sent.monthlyPayment, sent.currency),
+            'id': sent.reference.isEmpty ? sent.id : sent.reference,
           }),
         ),
         actions: [
@@ -132,12 +178,12 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final product in MockData.products)
+              for (final product in _repo.products)
                 ChoiceChip(
                   showCheckmark: false,
                   avatar: Icon(loanTypeIcon(product.type), size: 18),
                   label: Text(context.tr(product.name)),
-                  selected: product == p,
+                  selected: product.name == p.name,
                   onSelected: (_) => setState(() => _applyProduct(product)),
                 ),
             ],
@@ -178,7 +224,7 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final purpose in MockData.purposes)
+              for (final purpose in _repo.purposes)
                 ChoiceChip(
                   showCheckmark: false,
                   label: Text(context.tr(purpose)),
@@ -193,7 +239,7 @@ class _OrderLoanScreenState extends State<OrderLoanScreen> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: context.tr('order.income'),
-              suffixText: MockData.currency,
+              suffixText: _repo.currency,
               prefixIcon: const Icon(Icons.payments_outlined),
             ),
           ),

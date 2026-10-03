@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../widgets/loan_widgets.dart';
 
 /// Contracts of one loan ([loanId]) or of all loans (Documents tab).
+/// The list comes from GET /api/v1/loans/{id}/documents.
 class DocumentsScreen extends StatelessWidget {
   final String? loanId;
   const DocumentsScreen({super.key, this.loanId});
@@ -43,20 +44,54 @@ class DocumentsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                WhiteCard(
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < MockData.documents.length; i++) ...[
-                        if (i > 0) const Divider(height: 1, indent: 68),
-                        _DocTile(doc: MockData.documents[i]),
-                      ],
-                    ],
-                  ),
-                ),
+                _LoanDocuments(loanId: loan.id),
               ],
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _LoanDocuments extends StatelessWidget {
+  final String loanId;
+  const _LoanDocuments({required this.loanId});
+
+  @override
+  Widget build(BuildContext context) {
+    final repo = LoanRepository.instance;
+    final docs = repo.documentsFor(loanId);
+    if (docs == null) {
+      repo.ensureDocuments(loanId); // loads once, then the list rebuilds
+      return const WhiteCard(
+        padding: EdgeInsets.all(20),
+        child: Center(
+          child: SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+    if (docs.isEmpty) {
+      return WhiteCard(
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          context.tr('docs.empty'),
+          style: const TextStyle(color: AppColors.muted),
+        ),
+      );
+    }
+    return WhiteCard(
+      child: Column(
+        children: [
+          for (var i = 0; i < docs.length; i++) ...[
+            if (i > 0) const Divider(height: 1, indent: 68),
+            _DocTile(doc: docs[i]),
+          ],
+        ],
       ),
     );
   }

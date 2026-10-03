@@ -178,6 +178,11 @@
       "az": "Xəta baş verdi. Yenidən cəhd edin.",
       "ru": "Что-то пошло не так. Попробуйте ещё раз."
     },
+    "common.retry": {
+      "en": "Try again",
+      "az": "Yenidən cəhd et",
+      "ru": "Повторить"
+    },
     "detail.contracts": {
       "en": "Contracts",
       "az": "Müqavilələr",
@@ -278,6 +283,11 @@
       "az": "Ödəniş cədvəli",
       "ru": "График платежей"
     },
+    "docs.empty": {
+      "en": "No documents yet.",
+      "az": "Hələ sənəd yoxdur.",
+      "ru": "Документов пока нет."
+    },
     "docs.mock": {
       "en": "Document preview will be available when the app is connected to the bank.",
       "az": "Sənədə baxış tətbiq banka qoşulduqdan sonra mümkün olacaq.",
@@ -297,6 +307,131 @@
       "en": "Your contracts",
       "az": "Sizin müqavilələriniz",
       "ru": "Ваши договоры"
+    },
+    "error.amount_out_of_range": {
+      "en": "The amount is outside the limits of this loan.",
+      "az": "Məbləğ bu kreditin limitlərindən kənardadır.",
+      "ru": "Сумма вне лимитов этого кредита."
+    },
+    "error.amount_step": {
+      "en": "Choose an amount on the slider.",
+      "az": "Məbləği sürüşdürücü ilə seçin.",
+      "ru": "Выберите сумму на ползунке."
+    },
+    "error.bad_response": {
+      "en": "Unexpected answer from the server.",
+      "az": "Serverdən gözlənilməz cavab gəldi.",
+      "ru": "Неожиданный ответ сервера."
+    },
+    "error.bad_url": {
+      "en": "The server address is not valid.",
+      "az": "Server ünvanı düzgün deyil.",
+      "ru": "Неверный адрес сервера."
+    },
+    "error.full_name_required": {
+      "en": "Enter your full name.",
+      "az": "Ad və soyadınızı daxil edin.",
+      "ru": "Введите имя и фамилию."
+    },
+    "error.internal_error": {
+      "en": "Server error. Try again later.",
+      "az": "Server xətası. Bir az sonra cəhd edin.",
+      "ru": "Ошибка сервера. Попробуйте позже."
+    },
+    "error.loan_closed": {
+      "en": "This loan is fully repaid.",
+      "az": "Bu kredit tam ödənilib.",
+      "ru": "Этот кредит полностью погашен."
+    },
+    "error.loan_not_found": {
+      "en": "Loan not found. Pull down to refresh.",
+      "az": "Kredit tapılmadı. Yeniləmək üçün aşağı çəkin.",
+      "ru": "Кредит не найден. Потяните вниз, чтобы обновить."
+    },
+    "error.no_connection": {
+      "en": "No connection to the server. Check the internet and the server address.",
+      "az": "Serverlə əlaqə yoxdur. İnterneti və server ünvanını yoxlayın.",
+      "ru": "Нет связи с сервером. Проверьте интернет и адрес сервера."
+    },
+    "error.otp_attempts_exceeded": {
+      "en": "Too many wrong codes. Send a new one.",
+      "az": "Çox sayda yanlış kod. Yenisini göndərin.",
+      "ru": "Слишком много неверных кодов. Отправьте новый."
+    },
+    "error.otp_expired": {
+      "en": "The code has expired. Send a new one.",
+      "az": "Kodun vaxtı bitib. Yenisini göndərin.",
+      "ru": "Срок действия кода истёк. Отправьте новый."
+    },
+    "error.otp_invalid": {
+      "en": "Wrong code. Attempts left: {attemptsLeft}.",
+      "az": "Kod yanlışdır. Qalan cəhdlər: {attemptsLeft}.",
+      "ru": "Неверный код. Осталось попыток: {attemptsLeft}."
+    },
+    "error.otp_rate_limited": {
+      "en": "Too many codes requested. Try again in an hour.",
+      "az": "Çox sayda kod istənilib. Bir saatdan sonra cəhd edin.",
+      "ru": "Запрошено слишком много кодов. Попробуйте через час."
+    },
+    "error.otp_too_soon": {
+      "en": "Wait {retryAfter} s before asking for a new code.",
+      "az": "Yeni kod üçün {retryAfter} san. gözləyin.",
+      "ru": "Подождите {retryAfter} с перед запросом нового кода."
+    },
+    "error.phone_invalid": {
+      "en": "Enter an Azerbaijani number: +994 XX XXX XX XX.",
+      "az": "Azərbaycan nömrəsi daxil edin: +994 XX XXX XX XX.",
+      "ru": "Введите азербайджанский номер: +994 XX XXX XX XX."
+    },
+    "error.product_not_found": {
+      "en": "This loan type is not available.",
+      "az": "Bu kredit növü mövcud deyil.",
+      "ru": "Этот вид кредита недоступен."
+    },
+    "error.purpose_invalid": {
+      "en": "Choose a loan purpose.",
+      "az": "Kreditin məqsədini seçin.",
+      "ru": "Выберите цель кредита."
+    },
+    "error.refresh_expired": {
+      "en": "Your session has ended. Please sign in again.",
+      "az": "Sessiyanın vaxtı bitib. Yenidən daxil olun.",
+      "ru": "Сеанс завершён. Войдите заново."
+    },
+    "error.refresh_reused": {
+      "en": "Your session has ended. Please sign in again.",
+      "az": "Sessiyanın vaxtı bitib. Yenidən daxil olun.",
+      "ru": "Сеанс завершён. Войдите заново."
+    },
+    "error.session_expired": {
+      "en": "Your session has ended. Please sign in again.",
+      "az": "Sessiyanın vaxtı bitib. Yenidən daxil olun.",
+      "ru": "Сеанс завершён. Войдите заново."
+    },
+    "error.term_out_of_range": {
+      "en": "The term is outside the limits of this loan.",
+      "az": "Müddət bu kreditin limitlərindən kənardadır.",
+      "ru": "Срок вне лимитов этого кредита."
+    },
+    "error.timeout": {
+      "en": "The server is not answering. Try again.",
+      "az": "Server cavab vermir. Yenidən cəhd edin.",
+      "ru": "Сервер не отвечает. Попробуйте ещё раз."
+    },
+    "error.too_many_pending_applications": {
+      "en": "You already have applications under review.",
+      "az": "Baxılan müraciətləriniz artıq var.",
+      "ru": "У вас уже есть заявки на рассмотрении."
+    },
+    "error.user_disabled": {
+      "en": "This account is blocked. Contact the bank.",
+      "az": "Bu hesab bloklanıb. Banka müraciət edin.",
+      "ru": "Этот аккаунт заблокирован. Обратитесь в банк."
+    },
+    "error.validation_error": {
+      "en": "Check the entered data.",
+      "az": "Daxil edilən məlumatları yoxlayın.",
+      "ru": "Проверьте введённые данные."
     },
     "history.empty": {
       "en": "You have not made any payments yet.",
@@ -347,6 +482,11 @@
       "en": "Open loans: {n}",
       "az": "Aktiv kreditlər: {n}",
       "ru": "Открытые кредиты: {n}"
+    },
+    "home.sign_in_again": {
+      "en": "Sign in again",
+      "az": "Yenidən daxil ol",
+      "ru": "Войти заново"
     },
     "inst.due_in": {
       "en": {
@@ -418,6 +558,11 @@
       "en": "Applications",
       "az": "Müraciətlər",
       "ru": "Заявки"
+    },
+    "loans.rejected": {
+      "en": "Rejected",
+      "az": "Rədd edildi",
+      "ru": "Отклонена"
     },
     "loans.total_outstanding": {
       "en": "Total outstanding",
@@ -593,6 +738,46 @@
       "en": "Confirming…",
       "az": "Təsdiqlənir…",
       "ru": "Подтверждение…"
+    },
+    "otp.code": {
+      "en": "SMS code",
+      "az": "SMS kod",
+      "ru": "SMS-код"
+    },
+    "otp.resend": {
+      "en": "Send the code again",
+      "az": "Kodu yenidən göndər",
+      "ru": "Отправить код ещё раз"
+    },
+    "otp.resend_in": {
+      "en": "Send again in {n} s",
+      "az": "{n} san. sonra yenidən göndərmək olar",
+      "ru": "Отправить ещё раз через {n} с"
+    },
+    "otp.sent": {
+      "en": "A new code was sent.",
+      "az": "Yeni kod göndərildi.",
+      "ru": "Новый код отправлен."
+    },
+    "otp.subtitle": {
+      "en": "We sent an SMS code to {phone}.",
+      "az": "{phone} nömrəsinə SMS kod göndərdik.",
+      "ru": "Мы отправили SMS-код на номер {phone}."
+    },
+    "otp.test_code": {
+      "en": "Test server code: {code}",
+      "az": "Test serverinin kodu: {code}",
+      "ru": "Код тестового сервера: {code}"
+    },
+    "otp.title": {
+      "en": "Enter the code",
+      "az": "Kodu daxil edin",
+      "ru": "Введите код"
+    },
+    "otp.verify": {
+      "en": "Confirm",
+      "az": "Təsdiqlə",
+      "ru": "Подтвердить"
     },
     "pay.confirm_body": {
       "en": "Pay {amount} for payment #{n} of {loan}?",
@@ -822,6 +1007,11 @@
       "az": "Şifrəniz bu cihazda qorunan formada saxlanılır.",
       "ru": "Код-пароль хранится на этом устройстве в защищённом виде."
     },
+    "register.sending": {
+      "en": "Sending code…",
+      "az": "Kod göndərilir…",
+      "ru": "Отправляем код…"
+    },
     "register.subtitle": {
       "en": "Your loans are protected by a 6-digit passcode. You can also unlock with fingerprint or Face ID.",
       "az": "Kreditləriniz 6 rəqəmli şifrə ilə qorunur. Kilidi barmaq izi və ya Face ID ilə də aça bilərsiniz.",
@@ -944,6 +1134,36 @@
       "en": "Payment schedule",
       "az": "Ödəniş qrafiki",
       "ru": "График платежей"
+    },
+    "server.address": {
+      "en": "Server address",
+      "az": "Server ünvanı",
+      "ru": "Адрес сервера"
+    },
+    "server.check": {
+      "en": "Check connection",
+      "az": "Bağlantını yoxla",
+      "ru": "Проверить связь"
+    },
+    "server.hint": {
+      "en": "Address of the Loan API, for example http://192.168.1.10:8000",
+      "az": "Loan API ünvanı, məsələn http://192.168.1.10:8000",
+      "ru": "Адрес Loan API, например http://192.168.1.10:8000"
+    },
+    "server.ok": {
+      "en": "Connected",
+      "az": "Bağlantı var",
+      "ru": "Связь есть"
+    },
+    "server.save": {
+      "en": "Save",
+      "az": "Yadda saxla",
+      "ru": "Сохранить"
+    },
+    "server.title": {
+      "en": "Server",
+      "az": "Server",
+      "ru": "Сервер"
     },
     "state.active": {
       "en": "Active",

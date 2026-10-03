@@ -13,6 +13,18 @@ int daysBetween(DateTime from, DateTime to) =>
         .difference(DateTime.utc(from.year, from.month, from.day))
         .inDays;
 
+double _num(Object? v) => (v as num).toDouble();
+
+/// "2026-08-24" -> local midnight; "2026-08-24T12:00:00+04:00" -> local time.
+DateTime _date(Object? v) {
+  final d = DateTime.parse(v as String);
+  return d.isUtc ? d.toLocal() : d;
+}
+
+DateTime? _dateOrNull(Object? v) => v == null ? null : _date(v);
+
+LoanType loanTypeFromJson(Object? v) => LoanType.values.byName(v as String);
+
 class Installment {
   final int number;
   final DateTime dueDate;
@@ -29,6 +41,16 @@ class Installment {
     required this.balanceAfter,
     this.paidDate,
   });
+
+  /// From the API's schedule row (GET /api/v1/loans/{id}).
+  factory Installment.fromJson(Map<String, dynamic> j) => Installment(
+        number: (j['number'] as num).toInt(),
+        dueDate: _date(j['dueDate']),
+        principal: _num(j['principal']),
+        interest: _num(j['interest']),
+        balanceAfter: _num(j['balanceAfter']),
+        paidDate: _dateOrNull(j['paidDate']),
+      );
 
   bool get isPaid => paidDate != null;
   double get total => principal + interest;
@@ -68,6 +90,23 @@ class Loan {
     required this.startDate,
     required this.schedule,
   });
+
+  /// From GET /api/v1/loans/{id} (the response includes the schedule).
+  factory Loan.fromJson(Map<String, dynamic> j) => Loan(
+        id: j['id'] as String,
+        type: loanTypeFromJson(j['type']),
+        productName: j['productName'] as String,
+        contractNo: j['contractNo'] as String,
+        currency: j['currency'] as String,
+        amount: _num(j['amount']),
+        annualRate: _num(j['annualRate']),
+        termMonths: (j['termMonths'] as num).toInt(),
+        startDate: _date(j['startDate']),
+        schedule: [
+          for (final row in (j['schedule'] as List? ?? const []))
+            Installment.fromJson(row as Map<String, dynamic>),
+        ],
+      );
 
   Loan copyWith({List<Installment>? schedule}) => Loan(
         id: id,
@@ -145,6 +184,12 @@ class Loan {
 
 class LoanApplication {
   final String id;
+
+  /// Number shown to the customer, e.g. APP-000123.
+  final String reference;
+
+  /// submitted | approved | rejected | cancelled
+  final String status;
   final LoanType type;
   final String productName;
   final double amount;
@@ -166,5 +211,23 @@ class LoanApplication {
     required this.purpose,
     required this.currency,
     required this.createdAt,
+    this.reference = '',
+    this.status = 'submitted',
   });
+
+  /// From POST/GET /api/v1/applications.
+  factory LoanApplication.fromJson(Map<String, dynamic> j) => LoanApplication(
+        id: j['id'] as String,
+        reference: (j['reference'] as String?) ?? '',
+        status: (j['status'] as String?) ?? 'submitted',
+        type: loanTypeFromJson(j['type']),
+        productName: j['productName'] as String,
+        amount: _num(j['amount']),
+        termMonths: (j['termMonths'] as num).toInt(),
+        annualRate: _num(j['annualRate']),
+        monthlyPayment: _num(j['monthlyPayment']),
+        purpose: j['purpose'] as String,
+        currency: j['currency'] as String,
+        createdAt: _date(j['createdAt']),
+      );
 }

@@ -7,6 +7,8 @@ import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/api_client.dart';
+import '../data/loan_repository.dart';
 import '../i18n/l10n.dart';
 
 class AuthResult {
@@ -36,6 +38,26 @@ class PinCheck {
   const PinCheck.locked(Duration this.lockedFor)
       : ok = false,
         attemptsLeft = 0;
+}
+
+/// Answer of POST /api/v1/auth/otp/request.
+class OtpRequest {
+  /// Number in E.164 form as the server stored it, e.g. +994501234567.
+  final String phone;
+  final int expiresIn;
+  final int resendIn;
+  final bool isRegistered;
+
+  /// The code itself, only from a development server.
+  final String? debugCode;
+
+  const OtpRequest({
+    required this.phone,
+    required this.expiresIn,
+    required this.resendIn,
+    required this.isRegistered,
+    this.debugCode,
+  });
 }
 
 class AuthService {
@@ -96,6 +118,51 @@ class AuthService {
     ]) {
       await prefs.remove(k);
     }
+  }
+
+  // -------------------------------------------------------- server sign-in
+
+  /// Step 1: the server sends a one-time code by SMS.
+  Future<OtpRequest> requestCode(String phone) async {
+    final j = await ApiClient.instance.postPublic(
+      '/api/v1/auth/otp/request',
+      {'phone': phone},
+      query: {'language': _l.code},
+    ) as Map<String, dynamic>;
+    return OtpRequest(
+      phone: j['phone'] as String,
+      expiresIn: (j['expiresIn'] as num).toInt(),
+      resendIn: (j['resendIn'] as num).toInt(),
+      isRegistered: j['isRegistered'] as bool,
+      debugCode: j['debugCode'] as String?,
+    );
+  }
+
+  /// Step 2: check the code; the server returns tokens and the customer.
+  /// Returns (name, phone) as stored on the server.
+  Future<(String, String)> verifyCode({
+    required String phone,
+    required String code,
+    String? fullName,
+  }) async {
+    final name = fullName?.trim() ?? '';
+    final j = await ApiClient.instance.postPublic('/api/v1/auth/otp/verify', {
+      'phone': phone,
+      'code': code.trim(),
+      if (name.isNotEmpty) 'fullName': name,
+      'language': _l.code,
+      'deviceName': ApiClient.deviceName,
+    }) as Map<String, dynamic>;
+    await ApiClient.instance.saveSession(j);
+    final user = j['user'] as Map<String, dynamic>;
+    return (user['fullName'] as String, user['phone'] as String);
+  }
+
+  /// Signs out on the server and removes the user from this device.
+  Future<void> signOut() async {
+    await ApiClient.instance.logout();
+    LoanRepository.instance.clear();
+    await reset();
   }
 
   // ------------------------------------------------------------ passcode

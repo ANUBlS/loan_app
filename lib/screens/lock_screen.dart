@@ -89,7 +89,7 @@ class _LockScreenState extends State<LockScreen> {
       ),
     );
     if (confirmed != true) return;
-    await _auth.reset();
+    await _auth.signOut();
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const RegisterScreen()),

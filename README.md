@@ -1,6 +1,6 @@
-# Loan App (Flutter, mock data)
+# Loan App (Flutter)
 
-Screens: Register -> Biometric lock -> My loans -> Payment schedule -> Order a loan.
+Screens: Register (SMS code) -> Passcode / biometrics -> My loans -> Payment schedule -> Order a loan.
 
 ## 1. Create the project shell
     flutter create --org com.example --platforms android,ios loan_app
@@ -38,9 +38,26 @@ Then:
 
 Simulator: Features > Face ID > Enrolled, then Matching Face when prompted.
 
-## Swapping mock data for the real API
-All data goes through lib/data/loan_repository.dart. Replace MockData.loans()
-and submitApplication() with HTTP calls; screens stay unchanged.
+## Server (Loan API)
+The app works with the backend in github.com/ANUBlS/loan_api (FastAPI + PostgreSQL).
+
+Sign-in: name + phone -> SMS code (POST /api/v1/auth/otp/request, /otp/verify)
+-> 6-digit passcode on the phone. Loans, schedules, payments, applications and
+documents all come from the API through lib/data/loan_repository.dart and
+lib/data/api_client.dart (dart:io, no extra packages).
+
+Server address:
+- In the app: Register screen (server icon) or More > Server, with "Check connection".
+- At build time: `flutter build apk --release --dart-define=API_BASE_URL=http://192.168.1.10:8000`
+- Default: http://10.0.2.2:8000 (the PC from the Android emulator).
+
+Run the API on your PC so a phone on the same Wi-Fi can reach it:
+
+    uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+then use http://<PC-IP>:8000 in the app (allow port 8000 in Windows Firewall).
+A development server returns the SMS code in its answer, and the app shows it
+under the code field as "Test server code".
 
 ## Languages
 All texts live in assets/i18n/translations.json (English, Azerbaijani, Russian).

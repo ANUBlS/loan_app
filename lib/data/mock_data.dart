@@ -2,6 +2,8 @@ import '../models/loan.dart';
 import '../utils/loan_math.dart';
 
 class LoanProduct {
+  /// Id from the API catalog (0 for the built-in offline list).
+  final int id;
   final LoanType type;
   /// Translation key for the short name (chips), e.g. product.consumer
   final String name;
@@ -16,6 +18,7 @@ class LoanProduct {
   final int maxTerm;
 
   const LoanProduct({
+    this.id = 0,
     required this.type,
     required this.name,
     required this.loanName,
@@ -27,6 +30,20 @@ class LoanProduct {
     required this.maxTerm,
   });
 
+  /// From GET /api/v1/catalog.
+  factory LoanProduct.fromJson(Map<String, dynamic> j) => LoanProduct(
+        id: (j['id'] as num).toInt(),
+        type: loanTypeFromJson(j['type']),
+        name: j['name'] as String,
+        loanName: j['loanName'] as String,
+        annualRate: (j['annualRate'] as num).toDouble(),
+        minAmount: (j['minAmount'] as num).toDouble(),
+        maxAmount: (j['maxAmount'] as num).toDouble(),
+        step: (j['step'] as num).toDouble(),
+        minTerm: (j['minTerm'] as num).toInt(),
+        maxTerm: (j['maxTerm'] as num).toInt(),
+      );
+
   int get amountDivisions => ((maxAmount - minAmount) / step).round();
 }
 
@@ -34,7 +51,28 @@ class LoanDocument {
   /// Translation key of the document name.
   final String nameKey;
   final int sizeKb;
-  const LoanDocument(this.nameKey, this.sizeKb);
+  final String id;
+  final String fileName;
+
+  /// API path of the PDF, e.g. /api/v1/documents/{id}/download
+  final String downloadUrl;
+
+  const LoanDocument(
+    this.nameKey,
+    this.sizeKb, {
+    this.id = '',
+    this.fileName = '',
+    this.downloadUrl = '',
+  });
+
+  /// From GET /api/v1/loans/{id}/documents.
+  factory LoanDocument.fromJson(Map<String, dynamic> j) => LoanDocument(
+        j['name'] as String,
+        (j['sizeKb'] as num).toInt(),
+        id: j['id'] as String,
+        fileName: (j['fileName'] as String?) ?? '',
+        downloadUrl: (j['downloadUrl'] as String?) ?? '',
+      );
 }
 
 class MockData {
