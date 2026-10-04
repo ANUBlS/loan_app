@@ -1,10 +1,11 @@
 /// Address of the Loan API (github.com/ANUBlS/loan_api).
 ///
-/// Set it at build time:
-///   flutter build apk --dart-define=API_BASE_URL=http://192.168.1.10:8000
+/// Default: the production server smartfinance.az:42420.
+/// Override at build time:
+///   flutter build apk --dart-define=API_BASE_URL=http://192.168.2.93
 /// or change it in the app (Register screen or More > Server).
-/// The default reaches a server on the same PC from the Android emulator.
+/// For the Android emulator against a local API use http://10.0.2.2:8000.
 const String kDefaultApiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'http://10.0.2.2:8000',
+  defaultValue: 'http://smartfinance.az:42420',
 );
