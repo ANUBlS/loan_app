@@ -4,6 +4,7 @@ import '../data/api_client.dart';
 import '../data/loan_repository.dart';
 import '../i18n/l10n.dart';
 import '../models/loan.dart';
+import '../services/amount_visibility.dart';
 import '../services/auth_service.dart';
 import '../theme.dart';
 import '../utils/format.dart';
@@ -33,15 +34,29 @@ class LoansScreen extends StatefulWidget {
 
 class _LoansScreenState extends State<LoansScreen> {
   final _repo = LoanRepository.instance;
+  final _visibility = AmountVisibility.instance;
   String _name = '';
-  bool _hidden = false;
+
+  /// Saved on the device (see AmountVisibility), so it survives app restarts.
+  bool get _hidden => _visibility.hidden;
 
   @override
   void initState() {
     super.initState();
+    _visibility.addListener(_onVisibilityChanged);
     AuthService().userName().then((n) {
       if (mounted) setState(() => _name = n);
     });
+  }
+
+  @override
+  void dispose() {
+    _visibility.removeListener(_onVisibilityChanged);
+    super.dispose();
+  }
+
+  void _onVisibilityChanged() {
+    if (mounted) setState(() {});
   }
 
   String _money(double v) => _hidden ? '$hiddenAmount AZN' : formatMoney(v);
@@ -199,7 +214,7 @@ class _LoansScreenState extends State<LoansScreen> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () => setState(() => _hidden = !_hidden),
+                          onPressed: _visibility.toggle,
                           icon: Icon(
                             _hidden
                                 ? Icons.visibility_off_outlined

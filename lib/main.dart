@@ -8,6 +8,7 @@ import 'screens/home_screen.dart';
 import 'screens/lock_screen.dart';
 import 'screens/pin_setup_screen.dart';
 import 'screens/register_screen.dart';
+import 'services/amount_visibility.dart';
 import 'services/auth_service.dart';
 import 'theme.dart';
 
@@ -16,6 +17,7 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await L10n.instance.load();
   await ApiClient.instance.load();
+  await AmountVisibility.instance.load();
   runApp(const LoanApp());
 }
 
