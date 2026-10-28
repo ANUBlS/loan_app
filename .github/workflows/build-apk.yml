@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK and IPA
 
 on:
   push:
@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  android:
+    name: Android APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,3 +36,57 @@ jobs:
         with:
           name: loan_app-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+  ios:
+    name: iOS IPA (unsigned)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Generate platform files
+        run: flutter create --org com.example --project-name loan_app --platforms android,ios .
+
+      # iOS-only settings the app needs:
+      #  - Face ID: iOS refuses Face ID without a usage message.
+      #  - HTTP: the API runs on plain http://smartfinance.az:42420, so allow that
+      #    domain and local-network addresses (for test servers).
+      - name: Configure Info.plist
+        run: |
+          PLIST=ios/Runner/Info.plist
+          PB=/usr/libexec/PlistBuddy
+          $PB -c "Delete :NSFaceIDUsageDescription" "$PLIST" 2>/dev/null || true
+          $PB -c "Add :NSFaceIDUsageDescription string 'Face ID is used to unlock the app and confirm payments.'" "$PLIST"
+          $PB -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
+          $PB -c "Add :NSAppTransportSecurity dict" "$PLIST"
+          $PB -c "Add :NSAppTransportSecurity:NSAllowsLocalNetworking bool true" "$PLIST"
+          $PB -c "Add :NSAppTransportSecurity:NSExceptionDomains dict" "$PLIST"
+          $PB -c "Add :NSAppTransportSecurity:NSExceptionDomains:smartfinance.az dict" "$PLIST"
+          $PB -c "Add :NSAppTransportSecurity:NSExceptionDomains:smartfinance.az:NSIncludesSubdomains bool true" "$PLIST"
+          $PB -c "Add :NSAppTransportSecurity:NSExceptionDomains:smartfinance.az:NSExceptionAllowsInsecureHTTPLoads bool true" "$PLIST"
+          $PB -c "Set :CFBundleDisplayName 'Loan App'" "$PLIST" 2>/dev/null || true
+          plutil -lint "$PLIST"
+
+      - run: flutter pub get
+
+      - name: Build iOS app (no code signing)
+        run: flutter build ios --release --no-codesign
+
+      # An .ipa is a zip with the app inside a "Payload" folder.
+      # It is unsigned: Sideloadly (or your Apple developer account) signs it.
+      - name: Package IPA
+        run: |
+          mkdir -p build/ipa/Payload
+          cp -R build/ios/iphoneos/Runner.app build/ipa/Payload/
+          cd build/ipa
+          zip -qry loan_app.ipa Payload
+          ls -lh loan_app.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: loan_app-ipa
+          path: build/ipa/loan_app.ipa
